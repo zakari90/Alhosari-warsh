@@ -566,6 +566,7 @@ body {
   gap: 0.75rem;
   width: 100%;
   max-width: 480px;
+  direction: ltr;
 }
 
 .player-time {
@@ -575,6 +576,7 @@ body {
   text-align: center;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+  direction: ltr;
 }
 
 .player-seekbar-wrapper {
