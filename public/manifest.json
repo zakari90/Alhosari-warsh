@@ -1,0 +1,22 @@
+{
+  "name": "القرآن الكريم - الحصري",
+  "short_name": "القرآن",
+  "description": "تطبيق الاستماع للقرآن الكريم برواية ورش - الشيخ محمود خليل الحصري",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f1a",
+  "theme_color": "#d4a853",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

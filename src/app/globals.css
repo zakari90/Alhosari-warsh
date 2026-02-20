@@ -1,42 +1,1014 @@
+/* ========================================
+   Quran Al-Hosari PWA — Global Styles
+   Islamic-themed dark design with gold accents
+   ======================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color Palette */
+  --bg-primary: #0a0f1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2236;
+  --bg-card-hover: #1f2a42;
+  --bg-glass: rgba(26, 34, 54, 0.85);
+
+  --gold-primary: #d4a853;
+  --gold-light: #f0d48a;
+  --gold-dark: #b8892e;
+  --gold-glow: rgba(212, 168, 83, 0.3);
+
+  --emerald: #10b981;
+  --emerald-glow: rgba(16, 185, 129, 0.2);
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border-subtle: rgba(212, 168, 83, 0.15);
+  --border-card: rgba(212, 168, 83, 0.25);
+
+  /* Typography */
+  --font-arabic: "Noto Naskh Arabic", "Amiri", serif;
+  --font-display: "Amiri", serif;
+
+  /* Spacing */
+  --player-height: 110px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-medium: 300ms ease;
+  --transition-slow: 500ms ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ========================================
+   Reset & Base
+   ======================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html,
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  max-width: 100vw;
+  font-family: var(--font-arabic);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
   overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Subtle Islamic geometric pattern */
+  background-image:
+    radial-gradient(
+      circle at 20% 50%,
+      rgba(212, 168, 83, 0.03) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 20%,
+      rgba(16, 185, 129, 0.02) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 50% 80%,
+      rgba(212, 168, 83, 0.02) 0%,
+      transparent 50%
+    );
 }
 
-* {
-  box-sizing: border-box;
+/* ========================================
+   Header
+   ======================================== */
+
+.app-header {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(212, 168, 83, 0.08) 0%,
+    transparent 100%
+  );
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+
+.header-ornament {
+  font-size: 2rem;
+  color: var(--gold-primary);
+  margin-bottom: 0.75rem;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 8px var(--gold-glow));
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: linear-gradient(
+    135deg,
+    var(--gold-light) 0%,
+    var(--gold-primary) 50%,
+    var(--gold-dark) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.35rem;
+}
+
+.app-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* ========================================
+   Main Content
+   ======================================== */
+
+.app-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  padding-bottom: calc(var(--player-height) + 2rem);
+}
+
+/* ========================================
+   Hizb Grid
+   ======================================== */
+
+.hizb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.85rem;
+}
+
+.hizb-card {
+  aspect-ratio: 1;
+  border: none;
+  background: var(--bg-card);
+  border-radius: 16px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--transition-medium),
+    box-shadow var(--transition-medium),
+    background var(--transition-medium);
+  outline: 1px solid var(--border-card);
+  outline-offset: -1px;
+}
+
+.hizb-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 168, 83, 0.1) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-medium);
+}
+
+.hizb-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 24px var(--gold-glow);
+  background: var(--bg-card-hover);
+}
+
+.hizb-card:hover::before {
+  opacity: 1;
+}
+
+.hizb-card:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+.hizb-card-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 0.15rem;
+}
+
+.hizb-ornament {
+  font-size: 0.55rem;
+  color: var(--gold-primary);
+  opacity: 0.5;
+  transition: opacity var(--transition-medium);
+}
+
+.hizb-card:hover .hizb-ornament {
+  opacity: 1;
+}
+
+.hizb-number {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  line-height: 1;
+  text-shadow: 0 0 20px var(--gold-glow);
+}
+
+.hizb-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ========================================
+   Tomon Dialog
+   ======================================== */
+
+.tomon-dialog {
+  border: none;
+  background: transparent;
+  max-width: 90vw;
+  width: 480px;
   padding: 0;
-  margin: 0;
+  overflow: visible;
+  margin: auto;
+  position: fixed;
+  inset: 0;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  height: fit-content;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.tomon-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+.tomon-dialog-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.5),
+    0 0 40px var(--gold-glow);
+  animation: dialogEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tomon-dialog-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.tomon-dialog-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  margin-bottom: 0.25rem;
+}
+
+.tomon-dialog-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.tomon-close-btn {
+  position: absolute;
+  top: -0.25rem;
+  left: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.tomon-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.tomon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.tomon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.9rem 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  cursor: pointer;
+  transition:
+    transform var(--transition-medium),
+    background var(--transition-medium),
+    box-shadow var(--transition-medium),
+    border-color var(--transition-medium);
+}
+
+.tomon-card:hover {
+  transform: translateY(-3px);
+  background: var(--bg-card-hover);
+  border-color: var(--gold-primary);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 0 12px var(--gold-glow);
+}
+
+.tomon-card:active {
+  transform: translateY(-1px);
+}
+
+.tomon-number {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  line-height: 1;
+}
+
+.tomon-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ========================================
+   Audio Player
+   ======================================== */
+
+.audio-player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--player-height);
+  background: linear-gradient(
+    180deg,
+    rgba(17, 24, 39, 0.95) 0%,
+    rgba(10, 15, 26, 0.98) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-card);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 100;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.4);
+  animation: playerSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes playerSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.player-track-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.player-hizb {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+
+.player-separator {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.player-tomon {
+  color: var(--text-secondary);
+}
+
+/* Player Controls */
+.player-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.player-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+  padding: 0.25rem;
+}
+
+.player-btn:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.player-btn:not(:disabled):hover {
+  color: var(--gold-primary);
+  transform: scale(1.15);
+}
+
+.player-btn-play {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--gold-primary) 0%,
+    var(--gold-dark) 100%
+  ) !important;
+  color: var(--bg-primary) !important;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px var(--gold-glow);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.player-btn-play:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 24px var(--gold-glow);
+}
+
+.player-btn-skip {
+  font-size: 1.1rem;
+}
+
+/* Progress / Seek Bar */
+.player-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 480px;
+}
+
+.player-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  min-width: 36px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-seekbar-wrapper {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.player-seekbar-fill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-primary));
+  border-radius: 2px;
+  transition: width 100ms linear;
+  pointer-events: none;
+}
+
+.player-seekbar {
+  position: absolute;
+  top: -6px;
+  right: 0;
+  width: 100%;
+  height: 16px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  direction: ltr;
+}
+
+.player-seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  box-shadow: 0 0 8px var(--gold-glow);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.player-seekbar-wrapper:hover .player-seekbar::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.player-seekbar::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  border: none;
+  box-shadow: 0 0 8px var(--gold-glow);
+  cursor: pointer;
+}
+
+/* ========================================
+   Responsive — Mobile
+   ======================================== */
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 1.75rem 1rem 1.25rem;
+  }
+
+  .header-ornament {
+    font-size: 1.5rem;
+  }
+
+  .app-title {
+    font-size: 1.6rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .hizb-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.65rem;
+  }
+
+  .hizb-number {
+    font-size: 1.3rem;
+  }
+
+  .hizb-label {
+    font-size: 0.65rem;
+  }
+
+  .hizb-ornament {
+    font-size: 0.45rem;
+  }
+
+  .tomon-dialog {
+    width: 95vw;
+    max-width: 95vw;
+  }
+
+  .tomon-dialog-content {
+    padding: 1.25rem;
+    border-radius: 20px;
+  }
+
+  .tomon-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+  }
+
+  .tomon-dialog-header h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .hizb-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 769px) {
+  .hizb-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 168, 83, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 168, 83, 0.5);
+}
+
+/* ========================================
+   Download Header Button
+   ======================================== */
+
+.download-header-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(212, 168, 83, 0.12);
+  border: 1px solid var(--border-card);
+  color: var(--gold-light);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-arabic);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.download-header-btn:hover {
+  background: rgba(212, 168, 83, 0.2);
+  box-shadow: 0 4px 16px var(--gold-glow);
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   Download Manager Dialog
+   ======================================== */
+
+.download-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.download-dialog-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.5),
+    0 0 40px var(--gold-glow);
+  animation: dialogEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.download-close-btn {
+  position: absolute;
+  top: -0.25rem;
+  left: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  z-index: 10;
+}
+
+.download-close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+.download-dialog-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.download-dialog-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+
+/* Mode Buttons */
+.download-mode-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.download-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: right;
+  transition:
+    background var(--transition-medium),
+    border-color var(--transition-medium),
+    transform var(--transition-medium),
+    box-shadow var(--transition-medium);
+}
+
+.download-action-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--gold-primary);
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 0 12px var(--gold-glow);
+}
+
+.download-action-icon {
+  font-size: 1.6rem;
+}
+
+.download-action-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.download-action-text strong {
+  color: var(--text-primary);
+  font-family: var(--font-arabic);
+  font-size: 1rem;
+}
+
+.download-action-text small {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+/* Back Button & Header */
+.download-select-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+.download-back-btn {
+  background: transparent;
+  border: none;
+  color: var(--gold-primary);
+  font-family: var(--font-arabic);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: color var(--transition-fast);
+}
+
+/* Footer Close Button */
+.download-dialog-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.download-footer-close-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 0.6rem 2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-arabic);
+  font-size: 0.9rem;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.download-footer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: var(--gold-primary);
+}
+
+.download-back-btn:hover {
+  color: var(--gold-light);
+}
+
+/* Hizb Selection Grid */
+.download-hizb-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.5rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-left: 4px;
+}
+
+.download-hizb-card {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.download-hizb-card:not(:disabled):hover {
+  background: var(--bg-card-hover);
+  border-color: var(--gold-primary);
+  transform: scale(1.05);
+}
+
+.download-hizb-card:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.download-hizb-cached {
+  border-color: var(--emerald) !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+}
+
+.download-hizb-num {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+
+.download-hizb-badge {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  font-size: 0.65rem;
+}
+
+/* Progress Section */
+.download-progress-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.download-progress-bar-wrapper {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.download-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--gold-dark),
+    var(--gold-primary),
+    var(--emerald)
+  );
+  border-radius: 4px;
+  transition: width 200ms ease;
+}
+
+.download-progress-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.download-cancel-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 0.5rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-arabic);
+  font-size: 0.85rem;
+  transition:
+    background var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.download-cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  transform: scale(1.03);
+}
+
+/* ========================================
+   Download Dialog — Mobile
+   ======================================== */
+
+@media (max-width: 600px) {
+  .download-dialog-content {
+    padding: 1.25rem;
+  }
+
+  .download-hizb-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .download-header-btn {
+    position: static;
+    margin-top: 0.75rem;
+  }
+}
+
+/* ========================================
+   Focus Styles (Accessibility)
+   ======================================== */
+
+:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
 }
