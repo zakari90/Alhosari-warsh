@@ -5,6 +5,7 @@ import HizbGrid from "@/components/HizbGrid";
 import TomonDialog from "@/components/TomonDialog";
 import AudioPlayer from "@/components/AudioPlayer";
 import DownloadManager from "@/components/DownloadManager";
+import InstallButton from "@/components/InstallButton";
 
 export default function Home() {
   const [selectedHizb, setSelectedHizb] = useState<number | null>(null);
@@ -37,6 +38,7 @@ export default function Home() {
         >
           📥 تحميل
         </button>
+        <InstallButton />
       </header>
 
       <main className="app-main">
