@@ -126,7 +126,7 @@ export default function AudioPlayer({
           aria-label="السابق"
           disabled={!getPrevious(hizb, tomon)}
         >
-          ⏮
+          ⏭
         </button>
 
         <button
@@ -143,7 +143,7 @@ export default function AudioPlayer({
           aria-label="التالي"
           disabled={!getNext(hizb, tomon)}
         >
-          ⏭
+          ⏮
         </button>
       </div>
 
