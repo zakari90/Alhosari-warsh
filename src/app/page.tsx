@@ -27,7 +27,9 @@ export default function Home() {
       <header className="app-header">
         <div className="header-ornament">﷽</div>
         <h1 className="app-title">القرآن الكريم</h1>
-        <p className="app-subtitle">الشيخ محمود خليل الحصري — رواية ورش</p>
+        <p className="app-subtitle">
+          الشيخ محمود خليل الحصري — رواية ورش عن نافع
+        </p>
         <button
           className="download-header-btn"
           onClick={() => setDownloadOpen(true)}

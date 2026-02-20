@@ -18,7 +18,7 @@ const serwist = new Serwist({
   runtimeCaching: [
     ...defaultCache,
     {
-      urlPattern: /\/audio\/.*\.mp3$/,
+      matcher: /\/audio\/.*\.mp3$/,
       handler: new CacheFirst({
         cacheName: "quran-audio-cache",
       }),

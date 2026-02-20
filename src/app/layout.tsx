@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "القرآن الكريم — الحصري",
   description:
-    "تطبيق الاستماع للقرآن الكريم برواية ورش عن عاصم — تلاوة الشيخ محمود خليل الحصري",
+    "تطبيق الاستماع للقرآن الكريم برواية ورش عن نافع - الشيخ محمود خليل الحصري",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
