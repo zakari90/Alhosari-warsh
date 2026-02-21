@@ -42,7 +42,7 @@ export default function Home() {
       </header>
 
       <main className="app-main">
-        <HizbGrid onSelectHizb={setSelectedHizb} />
+        <HizbGrid onSelectHizb={setSelectedHizb} activeHizb={playingHizb} />
       </main>
 
       <TomonDialog

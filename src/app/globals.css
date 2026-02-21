@@ -229,6 +229,12 @@ body {
 
 /* Cache status borders (offline mode) */
 
+.hizb-active {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: -2px;
+  box-shadow: 0 0 16px var(--gold-glow);
+}
+
 .hizb-cached {
   outline: 2px solid #10b981;
   outline-offset: -2px;

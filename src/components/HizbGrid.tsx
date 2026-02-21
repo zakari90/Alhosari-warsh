@@ -5,9 +5,10 @@ import { TOTAL_AHZAB, TOMON_PER_HIZB, getAudioUrl } from "@/lib/quran-data";
 
 interface HizbGridProps {
   onSelectHizb: (hizb: number) => void;
+  activeHizb?: number | null;
 }
 
-export default function HizbGrid({ onSelectHizb }: HizbGridProps) {
+export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
   const [isOffline, setIsOffline] = useState(false);
   // Map of hizb number -> "full" | "partial" | "none"
   const [cacheStatus, setCacheStatus] = useState<
@@ -60,11 +61,15 @@ export default function HizbGrid({ onSelectHizb }: HizbGridProps) {
   }, [checkAllCacheStatus]);
 
   const getBorderClass = (hizb: number) => {
-    if (!isOffline) return "";
-    const s = cacheStatus[hizb];
-    if (s === "full") return "hizb-cached";
-    if (s === "partial") return "hizb-partial";
-    return "hizb-not-cached";
+    const classes: string[] = [];
+    if (activeHizb === hizb) classes.push("hizb-active");
+    if (isOffline) {
+      const s = cacheStatus[hizb];
+      if (s === "full") classes.push("hizb-cached");
+      else if (s === "partial") classes.push("hizb-partial");
+      else classes.push("hizb-not-cached");
+    }
+    return classes.join(" ");
   };
 
   return (
