@@ -30,6 +30,8 @@ export default function AudioPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [stopAtHizbEnd, setStopAtHizbEnd] = useState(true);
+  const [repeatTomon, setRepeatTomon] = useState(false);
 
   const audioUrl =
     hizb !== null && tomon !== null ? getAudioUrl(hizb, tomon) : null;
@@ -67,11 +69,18 @@ export default function AudioPlayer({
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
       if (hizb !== null && tomon !== null) {
-        const next = getNext(hizb, tomon);
-        if (next) {
-          onTrackChange(next.hizb, next.tomon);
-        } else {
+        if (repeatTomon) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        } else if (stopAtHizbEnd && tomon === 8) {
           setIsPlaying(false);
+        } else {
+          const next = getNext(hizb, tomon);
+          if (next) {
+            onTrackChange(next.hizb, next.tomon);
+          } else {
+            setIsPlaying(false);
+          }
         }
       }
     };
@@ -89,7 +98,7 @@ export default function AudioPlayer({
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [hizb, tomon, onTrackChange]);
+  }, [hizb, tomon, onTrackChange, stopAtHizbEnd, repeatTomon]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -131,6 +140,31 @@ export default function AudioPlayer({
         <span className="player-hizb">الحزب {hizb}</span>
         <span className="player-separator">—</span>
         <span className="player-tomon">{TOMON_LABELS[tomon - 1]}</span>
+      </div>
+      <div className="player-options">
+        <button
+          className={`player-btn player-btn-toggle ${
+            repeatTomon ? "active" : ""
+          }`}
+          onClick={() => setRepeatTomon(!repeatTomon)}
+          aria-label="تكرار الثمن"
+          title="تكرار الثمن"
+        >
+          <span>تكرار الثمن</span>
+          🔁
+        </button>
+
+        <button
+          className={`player-btn player-btn-toggle ${
+            stopAtHizbEnd ? "active" : ""
+          }`}
+          onClick={() => setStopAtHizbEnd(!stopAtHizbEnd)}
+          aria-label="توقف عند نهاية الحزب"
+          title="توقف عند نهاية الحزب"
+        >
+          <span>توقف عند نهاية الحزب</span>
+          🛑
+        </button>
       </div>
 
       <div className="player-controls">

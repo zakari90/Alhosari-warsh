@@ -26,7 +26,7 @@
   --font-display: "Amiri", serif;
 
   /* Spacing */
-  --player-height: 110px;
+  --player-height: 180px;
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -565,6 +565,48 @@ body {
   font-size: 1.1rem;
 }
 
+.player-options {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.player-btn-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.45rem 0.85rem;
+  border-radius: 100px;
+  border: 1px solid rgba(212, 168, 83, 0.1);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  transition: all var(--transition-medium);
+  white-space: nowrap;
+}
+
+.player-btn-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 168, 83, 0.3);
+  opacity: 1;
+}
+
+.player-btn-toggle.active {
+  background: rgba(212, 168, 83, 0.15);
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+  opacity: 1;
+  box-shadow: 0 0 15px var(--gold-glow);
+  text-shadow: 0 0 8px var(--gold-glow);
+}
+
+.player-btn-toggle span {
+  font-family: var(--font-arabic);
+  line-height: 1;
+}
+
 /* Progress / Seek Bar */
 .player-progress {
   display: flex;
@@ -573,7 +615,7 @@ body {
   width: 100%;
   max-width: 480px;
   direction: ltr;
-  margin-bottom: 0.75rem;
+  margin-bottom: 2.5rem;
 }
 
 .player-time {
