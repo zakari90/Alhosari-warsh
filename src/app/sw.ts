@@ -10,6 +10,8 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
+const VERSION = "v0.1.1";
+
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
@@ -20,7 +22,7 @@ const serwist = new Serwist({
     {
       matcher: ({ request }) => request.mode === "navigate",
       handler: new NetworkFirst({
-        cacheName: "pages-cache",
+        cacheName: `pages-cache-${VERSION}`,
         networkTimeoutSeconds: 5,
       }),
     },
@@ -28,14 +30,14 @@ const serwist = new Serwist({
     {
       matcher: /\/audio\/.*\.mp3$/,
       handler: new CacheFirst({
-        cacheName: "quran-audio-cache",
+        cacheName: `quran-audio-cache-${VERSION}`,
       }),
     },
     // Cache CSS/JS/fonts with CacheFirst
     {
       matcher: /\.(js|css|woff2?)$/,
       handler: new CacheFirst({
-        cacheName: "static-assets-cache",
+        cacheName: `static-assets-cache-${VERSION}`,
       }),
     },
     // Default caching strategies from Serwist
