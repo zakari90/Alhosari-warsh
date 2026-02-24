@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { TOTAL_AHZAB, TOMON_PER_HIZB, getAudioUrl } from "@/lib/quran-data";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 interface HizbGridProps {
   onSelectHizb: (hizb: number) => void;
@@ -9,7 +10,7 @@ interface HizbGridProps {
 }
 
 export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
-  const [isOffline, setIsOffline] = useState(false);
+  const { isOnline, isChecking } = useConnectivity();
   // Map of hizb number -> "full" | "partial" | "none"
   const [cacheStatus, setCacheStatus] = useState<
     Record<number, "full" | "partial" | "none">
@@ -40,30 +41,17 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
     }
   }, []);
 
+  // Re-check cache status whenever we go offline
   useEffect(() => {
-    const goOffline = () => {
-      setIsOffline(true);
-      checkAllCacheStatus();
-    };
-    const goOnline = () => setIsOffline(false);
-
-    setIsOffline(!navigator.onLine);
-    if (!navigator.onLine) {
+    if (!isOnline) {
       checkAllCacheStatus();
     }
-
-    window.addEventListener("offline", goOffline);
-    window.addEventListener("online", goOnline);
-    return () => {
-      window.removeEventListener("offline", goOffline);
-      window.removeEventListener("online", goOnline);
-    };
-  }, [checkAllCacheStatus]);
+  }, [isOnline, checkAllCacheStatus]);
 
   const getBorderClass = (hizb: number) => {
     const classes: string[] = [];
     if (activeHizb === hizb) classes.push("hizb-active");
-    if (isOffline) {
+    if (!isOnline) {
       const s = cacheStatus[hizb];
       if (s === "full") classes.push("hizb-cached");
       else if (s === "partial") classes.push("hizb-partial");
@@ -74,22 +62,26 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
 
   return (
     <>
-      {isOffline && (
+      {(!isOnline || isChecking) && (
         <div className="offline-legend">
-          <div className="offline-legend-title">⚡ وضع بدون إنترنت</div>
-          <div className="offline-legend-items">
-            <span className="legend-item">
-              <span className="legend-dot legend-dot-green"></span> محفوظ
-              بالكامل
-            </span>
-            <span className="legend-item">
-              <span className="legend-dot legend-dot-orange"></span> محفوظ
-              جزئياً
-            </span>
-            <span className="legend-item">
-              <span className="legend-dot legend-dot-red"></span> غير محفوظ
-            </span>
+          <div className="offline-legend-title">
+            {isChecking ? "🔄 جارٍ التحقق من الاتصال..." : "⚡ وضع بدون إنترنت"}
           </div>
+          {!isOnline && (
+            <div className="offline-legend-items">
+              <span className="legend-item">
+                <span className="legend-dot legend-dot-green"></span> محفوظ
+                بالكامل
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot legend-dot-orange"></span> محفوظ
+                جزئياً
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot legend-dot-red"></span> غير محفوظ
+              </span>
+            </div>
+          )}
         </div>
       )}
       <div className="hizb-grid">
