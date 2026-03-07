@@ -27,14 +27,24 @@ export default function AudioPlayer({
   onTrackChange,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const repeatCountRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [stopAtHizbEnd, setStopAtHizbEnd] = useState(true);
   const [repeatTomon, setRepeatTomon] = useState(false);
+  const [repeatDisplay, setRepeatDisplay] = useState(0);
+
+  const REPEAT_MAX = 10;
 
   const audioUrl =
     hizb !== null && tomon !== null ? getAudioUrl(hizb, tomon) : null;
+
+  // Reset repeat count when track changes
+  useEffect(() => {
+    repeatCountRef.current = 0;
+    setRepeatDisplay(0);
+  }, [audioUrl]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -69,9 +79,25 @@ export default function AudioPlayer({
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
       if (hizb !== null && tomon !== null) {
-        if (repeatTomon) {
+        if (repeatTomon && repeatCountRef.current < REPEAT_MAX - 1) {
+          repeatCountRef.current += 1;
+          setRepeatDisplay(repeatCountRef.current);
           audio.currentTime = 0;
           audio.play().catch(() => {});
+        } else if (repeatTomon && repeatCountRef.current >= REPEAT_MAX - 1) {
+          // Finished all 10 repeats, move to next or stop
+          repeatCountRef.current = 0;
+          setRepeatDisplay(0);
+          if (stopAtHizbEnd && tomon === 8) {
+            setIsPlaying(false);
+          } else {
+            const next = getNext(hizb, tomon);
+            if (next) {
+              onTrackChange(next.hizb, next.tomon);
+            } else {
+              setIsPlaying(false);
+            }
+          }
         } else if (stopAtHizbEnd && tomon === 8) {
           setIsPlaying(false);
         } else {
@@ -146,11 +172,22 @@ export default function AudioPlayer({
           className={`player-btn player-btn-toggle ${
             repeatTomon ? "active" : ""
           }`}
-          onClick={() => setRepeatTomon(!repeatTomon)}
-          aria-label="تكرار الثمن"
-          title="تكرار الثمن"
+          onClick={() => {
+            if (repeatTomon) {
+              repeatCountRef.current = 0;
+              setRepeatDisplay(0);
+            }
+            setRepeatTomon(!repeatTomon);
+          }}
+          aria-label="تكرار الثمن 10 مرات"
+          title="تكرار الثمن 10 مرات"
         >
-          <span>تكرار الثمن</span>
+          <span>
+            تكرار الثمن{" "}
+            {repeatTomon
+              ? `(${repeatDisplay + 1}/${REPEAT_MAX})`
+              : `(${REPEAT_MAX}×)`}
+          </span>
           🔁
         </button>
 
