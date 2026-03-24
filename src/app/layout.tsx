@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import SerwistInit from "@/components/SerwistInit";
 
 export const metadata: Metadata = {
   title: "القرآن الكريم — الشيخ محمود خليل الحصري",
@@ -65,7 +66,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SerwistInit />
+        {children}
+      </body>
     </html>
   );
 }

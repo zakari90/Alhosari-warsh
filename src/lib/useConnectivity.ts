@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { getAudioUrl } from "./quran-data";
 
 const PING_TIMEOUT_MS = 4000;
 const RECHECK_INTERVAL_MS = 30000;
@@ -37,7 +38,7 @@ async function pingAudioServer(): Promise<boolean> {
 
   try {
     // Check the first MP3 file
-    const res = await fetch("/audio/001/001_1.mp3", {
+    const res = await fetch(getAudioUrl(1, 1), {
       method: "HEAD",
       cache: "no-store",
       signal: controller.signal,
