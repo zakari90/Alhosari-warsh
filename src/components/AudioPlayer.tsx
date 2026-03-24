@@ -50,9 +50,21 @@ export default function AudioPlayer({
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
-    audio.src = audioUrl;
-    audio.play().catch(() => {});
-    setIsPlaying(true);
+    // Check if onEnded already started playing the new src
+    const currentSrcPath = window.location.origin
+      ? audio.src.replace(window.location.origin, "")
+      : audio.src;
+
+    if (currentSrcPath === audioUrl) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      }
+      setIsPlaying(!audio.paused);
+    } else {
+      audio.src = audioUrl;
+      audio.play().catch(() => {});
+      setIsPlaying(true);
+    }
 
     // Explicitly cache the audio file for offline use
     if (typeof caches !== "undefined") {
@@ -93,6 +105,10 @@ export default function AudioPlayer({
           } else {
             const next = getNext(hizb, tomon);
             if (next) {
+              // Play immediately to bypass mobile background/lock-screen restrictions
+              const nextUrl = getAudioUrl(next.hizb, next.tomon);
+              audio.src = nextUrl;
+              audio.play().catch(() => {});
               onTrackChange(next.hizb, next.tomon);
             } else {
               setIsPlaying(false);
@@ -103,6 +119,10 @@ export default function AudioPlayer({
         } else {
           const next = getNext(hizb, tomon);
           if (next) {
+            // Play immediately to bypass mobile background/lock-screen restrictions
+            const nextUrl = getAudioUrl(next.hizb, next.tomon);
+            audio.src = nextUrl;
+            audio.play().catch(() => {});
             onTrackChange(next.hizb, next.tomon);
           } else {
             setIsPlaying(false);
