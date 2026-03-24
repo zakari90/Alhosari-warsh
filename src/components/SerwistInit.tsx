@@ -8,7 +8,7 @@ export default function SerwistInit() {
       const registerSerwist = async () => {
         try {
           // @ts-ignore
-          const { Serwist } = await import("serwist/window");
+          const { Serwist } = await import("@serwist/window");
           const serwist = new Serwist("/sw.js", { scope: "/" });
 
           // Expose to window for PwaUpdater
