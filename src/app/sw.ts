@@ -30,7 +30,7 @@ const serwist = new Serwist({
     {
       matcher: /\/audio\/.*\.mp3$/,
       handler: new CacheFirst({
-        cacheName: `quran-audio-cache-${VERSION}`,
+        cacheName: "quran-audio-cache", // Persistent name across versions
       }),
     },
     // Cache CSS/JS/fonts with CacheFirst

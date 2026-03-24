@@ -7,12 +7,14 @@ import AudioPlayer from "@/components/AudioPlayer";
 import DownloadManager from "@/components/DownloadManager";
 import InstallButton from "@/components/InstallButton";
 import PwaUpdater from "@/components/PwaUpdater";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 export default function Home() {
   const [selectedHizb, setSelectedHizb] = useState<number | null>(null);
   const [playingHizb, setPlayingHizb] = useState<number | null>(null);
   const [playingTomon, setPlayingTomon] = useState<number | null>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
+  const { isOnline } = useConnectivity();
 
   const handleSelectTomon = useCallback((hizb: number, tomon: number) => {
     setPlayingHizb(hizb);
@@ -32,13 +34,15 @@ export default function Home() {
         <p className="app-subtitle">
           الشيخ محمود خليل الحصري — رواية ورش عن نافع
         </p>
-        <button
-          className="download-header-btn"
-          onClick={() => setDownloadOpen(true)}
-          aria-label="تحميل"
-        >
-          📥 تحميل
-        </button>
+        {isOnline && (
+          <button
+            className="download-header-btn"
+            onClick={() => setDownloadOpen(true)}
+            aria-label="تحميل"
+          >
+            📥 تحميل
+          </button>
+        )}
         <InstallButton />
       </header>
 

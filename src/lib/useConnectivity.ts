@@ -28,6 +28,33 @@ async function pingServer(): Promise<boolean> {
 }
 
 /**
+ * Verifies if the audio server specifically is reachable and not blocked
+ * by a captive portal (which often returns 200 OK but HTML content).
+ */
+async function pingAudioServer(): Promise<boolean> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
+
+  try {
+    // Check the first MP3 file
+    const res = await fetch("/audio/001/001_1.mp3", {
+      method: "HEAD",
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    const contentType = res.headers.get("content-type") || "";
+    return (
+      res.ok &&
+      (contentType.includes("audio") || contentType.includes("octet-stream"))
+    );
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * Hook that provides reliable online/offline status.
  *
  * Unlike raw `navigator.onLine`, this hook **pings the server** when
@@ -36,15 +63,25 @@ async function pingServer(): Promise<boolean> {
  */
 export function useConnectivity() {
   const [isOnline, setIsOnline] = useState(true);
+  const [isRestricted, setIsRestricted] = useState(false); // True if basic ping works but audio ping fails
   const [isChecking, setIsChecking] = useState(false);
   const recheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const verify = useCallback(async () => {
     setIsChecking(true);
-    const reachable = await pingServer();
-    setIsOnline(reachable);
+    const basicReach = await pingServer();
+    let fullyReachable = false;
+
+    if (basicReach) {
+      fullyReachable = await pingAudioServer();
+      setIsRestricted(!fullyReachable);
+    } else {
+      setIsRestricted(false);
+    }
+
+    setIsOnline(basicReach);
     setIsChecking(false);
-    return reachable;
+    return fullyReachable; // Return true only if fully capable of downloading audio
   }, []);
 
   // Start / stop the periodic recheck when offline
@@ -107,5 +144,5 @@ export function useConnectivity() {
     };
   }, [verify, startRecheck, stopRecheck]);
 
-  return { isOnline, isChecking, verify };
+  return { isOnline, isRestricted, isChecking, verify };
 }
