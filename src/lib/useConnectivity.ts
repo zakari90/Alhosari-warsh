@@ -15,8 +15,9 @@ async function pingServer(): Promise<boolean> {
   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
 
   try {
-    const res = await fetch("/", {
-      method: "HEAD",
+    // Ping manifest.json with a cache-buster instead of the root /
+    const res = await fetch("/manifest.json?v=" + Date.now(), {
+      method: "GET",
       cache: "no-store",
       signal: controller.signal,
     });
@@ -37,15 +38,16 @@ async function pingAudioServer(): Promise<boolean> {
   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
 
   try {
-    // Check the first MP3 file
+    // Check the first MP3 file using GET with Range: 0-0 for better proxy compatibility
     const res = await fetch(getAudioUrl(1, 1), {
-      method: "HEAD",
+      method: "GET",
+      headers: { Range: "bytes=0-0" },
       cache: "no-store",
       signal: controller.signal,
     });
     const contentType = res.headers.get("content-type") || "";
     return (
-      res.ok &&
+      (res.ok || res.status === 206) &&
       (contentType.includes("audio") || contentType.includes("octet-stream"))
     );
   } catch {
