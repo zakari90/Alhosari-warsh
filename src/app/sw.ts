@@ -17,15 +17,17 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
+  fallbacks: {
+    entries: [
+      {
+        url: "/", // Fallback to the precached root page if offline navigation fails
+        matcher({ request }) {
+          return request.mode === "navigate";
+        },
+      },
+    ],
+  },
   runtimeCaching: [
-    // Cache page navigations with NetworkFirst (offline fallback)
-    {
-      matcher: ({ request }) => request.mode === "navigate",
-      handler: new NetworkFirst({
-        cacheName: `pages-cache-${VERSION}`,
-        networkTimeoutSeconds: 5,
-      }),
-    },
     // Cache audio files with CacheFirst (offline playback)
     {
       matcher: /\/audio\/.*\.mp3$/,
