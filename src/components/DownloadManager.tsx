@@ -89,7 +89,9 @@ export default function DownloadManager({
       if (!isCapable) {
         setDownloading(false);
         setErrorMsg(
-          "الإنترنت متصل لكن الخادم غير متاح. تأكد من اتصالك بإنترنت غير مقيد.",
+          !isOnline
+            ? "لا يوجد اتصال بالإنترنت لبدء التحميل."
+            : "الإنترنت متصل لكن الخادم غير متاح. تأكد من اتصالك بإنترنت غير مقيد.",
         );
         return;
       }
@@ -167,6 +169,19 @@ export default function DownloadManager({
           </button>
         </div>
 
+        {!isOnline && !downloading && (
+          <div className="download-offline-notice" style={{
+            padding: "8px",
+            backgroundColor: "#fff3cd",
+            color: "#856404",
+            textAlign: "center",
+            fontSize: "0.85rem",
+            marginBottom: "10px"
+          }}>
+            أنت غير متصل بالإنترنت. يمكنك فقط تصفح الملفات المحملة.
+          </div>
+        )}
+
         {errorMsg && (
           <div
             className="download-error-msg"
@@ -211,8 +226,8 @@ export default function DownloadManager({
             <button
               className="download-action-btn"
               onClick={handleDownloadAll}
-              disabled={isRestricted}
-              style={{ opacity: isRestricted ? 0.6 : 1 }}
+              disabled={!isOnline || isRestricted}
+              style={{ opacity: (!isOnline || isRestricted) ? 0.6 : 1 }}
             >
               <span className="download-action-icon">📥</span>
               <span className="download-action-text">
@@ -223,13 +238,11 @@ export default function DownloadManager({
             <button
               className="download-action-btn"
               onClick={() => setMode("select")}
-              disabled={isRestricted}
-              style={{ opacity: isRestricted ? 0.6 : 1 }}
             >
               <span className="download-action-icon">🔢</span>
               <span className="download-action-text">
                 <strong>اختيار حزب</strong>
-                <small>اختر الأحزاب التي تريد تحميلها</small>
+                <small>استعرض أو اختر الأحزاب للتحميل</small>
               </span>
             </button>
           </div>
@@ -254,7 +267,7 @@ export default function DownloadManager({
                     key={h}
                     className={`download-hizb-card ${isCached ? "download-hizb-cached" : ""}`}
                     onClick={() => handleDownloadHizb(h)}
-                    disabled={isCached}
+                    disabled={isCached || (!isCached && (!isOnline || isRestricted))}
                   >
                     <span className="download-hizb-num">{h}</span>
                     {isCached && (

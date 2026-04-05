@@ -4,7 +4,7 @@ const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
   additionalPrecacheEntries: ["/"],
-  reloadOnOnline: true,
+  reloadOnOnline: false,
 });
 
 export default withSerwist({
