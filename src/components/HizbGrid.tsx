@@ -41,22 +41,18 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
     }
   }, []);
 
-  // Re-check cache status whenever we go offline
+  // Re-check cache status whenever we go offline or on mount
   useEffect(() => {
-    if (!isOnline) {
-      checkAllCacheStatus();
-    }
+    checkAllCacheStatus();
   }, [isOnline, checkAllCacheStatus]);
 
   const getBorderClass = (hizb: number) => {
     const classes: string[] = [];
     if (activeHizb === hizb) classes.push("hizb-active");
-    if (!isOnline) {
-      const s = cacheStatus[hizb];
-      if (s === "full") classes.push("hizb-cached");
-      else if (s === "partial") classes.push("hizb-partial");
-      else classes.push("hizb-not-cached");
-    }
+    const s = cacheStatus[hizb];
+    if (s === "full") classes.push("hizb-cached");
+    else if (s === "partial") classes.push("hizb-partial");
+    else if (!isOnline) classes.push("hizb-not-cached");
     return classes.join(" ");
   };
 

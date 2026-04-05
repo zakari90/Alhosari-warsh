@@ -32,7 +32,21 @@ const serwist = new Serwist({
     {
       matcher: /\/audio\/.*\.mp3$/,
       handler: new CacheFirst({
-        cacheName: "quran-audio-cache", // Persistent name across versions
+        cacheName: "quran-audio-cache",
+      }),
+    },
+    // Cache Google Fonts
+    {
+      matcher: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+      handler: new CacheFirst({
+        cacheName: "google-fonts",
+      }),
+    },
+    // Cache manifest
+    {
+      matcher: /\/manifest\.json$/,
+      handler: new NetworkFirst({
+        cacheName: "manifest-cache",
       }),
     },
     // Cache CSS/JS/fonts with CacheFirst

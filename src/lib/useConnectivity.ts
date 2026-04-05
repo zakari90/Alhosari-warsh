@@ -111,19 +111,28 @@ export function useConnectivity() {
   }, []);
 
   useEffect(() => {
-    // Initial check
-    if (typeof navigator !== "undefined") {
+    let active = true;
+
+    const initialCheck = async () => {
+      if (typeof navigator === "undefined" || !active) return;
+
       if (!navigator.onLine) {
         setIsOnline(false);
         startRecheck();
       } else {
-        // Verify on mount too — navigator.onLine can lie
-        verify();
+        // Initial ping can be slow or stall during some browser refresh cycles
+        try {
+          await verify();
+        } catch {
+          // Ignore initial verification failure during mount
+        }
       }
-    }
+    };
+
+    initialCheck();
 
     const handleOnline = async () => {
-      // Browser says online, but verify first
+      if (!active) return;
       const reachable = await verify();
       if (!reachable) {
         startRecheck();
@@ -133,6 +142,7 @@ export function useConnectivity() {
     };
 
     const handleOffline = () => {
+      if (!active) return;
       setIsOnline(false);
       startRecheck();
     };
@@ -141,6 +151,7 @@ export function useConnectivity() {
     window.addEventListener("offline", handleOffline);
 
     return () => {
+      active = false;
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       stopRecheck();
