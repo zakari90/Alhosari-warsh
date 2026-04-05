@@ -10,11 +10,11 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-// VERSION = "v0.1.4"
+const VERSION = "v0.1.6";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  skipWaiting: false, // Wait for user confirmation to avoid mid-session crashes
   clientsClaim: true,
   navigationPreload: true,
   fallbacks: {
@@ -50,3 +50,20 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// Manual cleanup for non-standard/legacy caches created in previous fixes
+self.addEventListener("activate", (event) => {
+  console.log("Service Worker activating version:", VERSION);
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((cacheName) => {
+            // Delete old static-assets-cache versions from previous fixes
+            return cacheName.startsWith("static-assets-cache-");
+          })
+          .map((cacheName) => caches.delete(cacheName))
+      );
+    })
+  );
+});

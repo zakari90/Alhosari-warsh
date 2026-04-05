@@ -10,11 +10,22 @@ export default function SerwistInit() {
           // @ts-ignore
           const { Serwist } = await import("@serwist/window");
           const serwist = new Serwist("/sw.js", { scope: "/" });
-
-          // Expose to window for PwaUpdater
           (window as any).serwist = serwist;
 
-          await serwist.register();
+          const registration = await serwist.register();
+
+          if (registration) {
+            // Check for updates every 60 minutes
+            setInterval(() => {
+              registration.update();
+            }, 60 * 60 * 1000);
+
+            // Also check for updates when the page is refocused
+            window.addEventListener("focus", () => {
+              registration.update();
+            });
+          }
+
           console.log("Serwist Service Worker registered successfully");
         } catch (error) {
           console.error("Serwist Service Worker registration failed:", error);
