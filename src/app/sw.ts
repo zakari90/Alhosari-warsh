@@ -20,7 +20,7 @@ const serwist = new Serwist({
   fallbacks: {
     entries: [
       {
-        url: "/", // Fallback to the precached root page if offline navigation fails
+        url: "/~offline", // Fallback to the offline page if offline navigation fails
         matcher({ request }) {
           return request.mode === "navigate";
         },
@@ -49,13 +49,7 @@ const serwist = new Serwist({
         cacheName: `static-assets-v1`, // Different name to avoid old hydration errors
       }),
     },
-    // Cache Next.js built-in static chunks
-    {
-      matcher: /\/_next\/static\/.*/i,
-      handler: new CacheFirst({
-        cacheName: "next-static-assets",
-      }),
-    },
+
     // Let Serwist gracefully handle everything else (RSC payloads, etc.)
     ...defaultCache,
   ],
