@@ -50,20 +50,18 @@ export default function AudioPlayer({
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
-    // Check if onEnded already started playing the new src
-    const currentSrcPath = window.location.origin
-      ? audio.src.replace(window.location.origin, "")
-      : audio.src;
+    let currentPathname = "";
+    try {
+      currentPathname = audio.src ? new URL(audio.src, globalThis.location.origin).pathname : "";
+    } catch (e) {}
 
-    if (currentSrcPath === audioUrl) {
+    if (currentPathname === audioUrl) {
       if (audio.paused) {
         audio.play().catch(() => {});
       }
-      setIsPlaying(!audio.paused);
     } else {
       audio.src = audioUrl;
       audio.play().catch(() => {});
-      setIsPlaying(true);
     }
 
     // Explicitly cache the audio file for offline use
@@ -149,12 +147,12 @@ export default function AudioPlayer({
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (isPlaying) {
-      audio.pause();
-    } else {
+    if (audio.paused) {
       audio.play().catch(() => {});
+    } else {
+      audio.pause();
     }
-  }, [isPlaying]);
+  }, []);
 
   const seek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
