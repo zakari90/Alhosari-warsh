@@ -1,63 +1,71 @@
 "use client";
 
-import React from "react";
+import { useState, useCallback } from "react";
+import HizbGrid from "@/components/HizbGrid";
+import TomonDialog from "@/components/TomonDialog";
+import AudioPlayer from "@/components/AudioPlayer";
+import DownloadManager from "@/components/DownloadManager";
+import InstallButton from "@/components/InstallButton";
+import PwaUpdater from "@/components/PwaUpdater";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 export default function OfflinePage() {
+  const [selectedHizb, setSelectedHizb] = useState<number | null>(null);
+  const [playingHizb, setPlayingHizb] = useState<number | null>(null);
+  const [playingTomon, setPlayingTomon] = useState<number | null>(null);
+  const [downloadOpen, setDownloadOpen] = useState(false);
+  const { isOnline } = useConnectivity();
+
+  const handleSelectTomon = useCallback((hizb: number, tomon: number) => {
+    setPlayingHizb(hizb);
+    setPlayingTomon(tomon);
+  }, []);
+
+  const handleTrackChange = useCallback((hizb: number, tomon: number) => {
+    setPlayingHizb(hizb);
+    setPlayingTomon(tomon);
+  }, []);
+
   return (
-    <main
-      className="app-main"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "70vh",
-        textAlign: "center",
-        gap: "1rem",
-      }}
-    >
-      <div
-        className="header-ornament"
-        style={{ fontSize: "3.5rem", marginBottom: "1.5rem" }}
-      >
-        ﷽
-      </div>
-      <h1
-        className="app-title"
-        style={{ fontSize: "2rem", marginBottom: "0.5rem" }}
-      >
-        أنت غير متصل بالإنترنت
-      </h1>
-      <p
-        className="app-subtitle"
-        style={{
-          fontSize: "1.1rem",
-          maxWidth: "400px",
-          lineHeight: "1.6",
-          marginBottom: "2rem",
-        }}
-      >
-        يبدو أنك تحاول الوصول إلى صفحة غير محفوظة.
-        <br />
-        انقر أدناه للعودة إلى الصفحة الرئيسية المحفوظة في وضع عدم الاتصال.
-      </p>
-      <button
-        style={{
-          padding: "0.85rem 2rem",
-          background: "linear-gradient(135deg, var(--gold-primary), var(--gold-dark))",
-          color: "var(--bg-primary)",
-          border: "none",
-          borderRadius: "14px",
-          fontWeight: "bold",
-          cursor: "pointer",
-          fontFamily: "inherit",
-          fontSize: "1.1rem",
-          boxShadow: "0 4px 16px var(--gold-glow)",
-        }}
-        onClick={() => (window.location.href = "/")}
-      >
-        العودة للرئيسية
-      </button>
-    </main>
+    <>
+      <header className="app-header">
+        <div className="header-ornament">﷽</div>
+        <h1 className="app-title">القرآن الكريم</h1>
+        <p className="app-subtitle">
+          الشيخ محمود خليل الحصري — رواية ورش عن نافع
+        </p>
+        <button
+          className="download-header-btn"
+          onClick={() => setDownloadOpen(true)}
+          aria-label="تحميل"
+        >
+          📥 تحميل
+        </button>
+        <InstallButton />
+      </header>
+
+      <main className="app-main">
+        <HizbGrid onSelectHizb={setSelectedHizb} activeHizb={playingHizb} />
+      </main>
+
+      <TomonDialog
+        hizb={selectedHizb}
+        onSelectTomon={handleSelectTomon}
+        onClose={() => setSelectedHizb(null)}
+      />
+
+      <DownloadManager
+        open={downloadOpen}
+        onClose={() => setDownloadOpen(false)}
+      />
+
+      <AudioPlayer
+        hizb={playingHizb}
+        tomon={playingTomon}
+        onTrackChange={handleTrackChange}
+      />
+
+      <PwaUpdater />
+    </>
   );
 }
