@@ -10,7 +10,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-const VERSION = "v0.1.7";
+const VERSION = "v0.1.8";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -37,7 +37,7 @@ const serwist = new Serwist({
     {
       matcher: /\.(?:js|css|woff2?|png|jpg|jpeg|svg|ico)$/,
       handler: new CacheFirst({
-        cacheName: `static-assets-v1`, // Different name to avoid old hydration errors
+        cacheName: `static-assets-${VERSION}`, 
       }),
     },
 
@@ -56,8 +56,8 @@ self.addEventListener("activate", (event) => {
       return Promise.all(
         cacheNames
           .filter((cacheName) => {
-            // Delete old static-assets-cache versions from previous fixes
-            return cacheName.startsWith("static-assets-cache-");
+            // Delete old static-assets versions that are not the current one
+            return cacheName.startsWith("static-assets-") && cacheName !== `static-assets-${VERSION}`;
           })
           .map((cacheName) => caches.delete(cacheName))
       );
