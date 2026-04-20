@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import HizbGrid from "@/components/HizbGrid";
-import TomonDialog from "@/components/TomonDialog";
 import AudioPlayer from "@/components/AudioPlayer";
 import DownloadManager from "@/components/DownloadManager";
+import HizbGrid from "@/components/HizbGrid";
 import InstallButton from "@/components/InstallButton";
 import PwaUpdater from "@/components/PwaUpdater";
+import TomonDialog from "@/components/TomonDialog";
 import { useConnectivity } from "@/lib/useConnectivity";
+import { useCallback, useState } from "react";
 
 export default function Home() {
   const [selectedHizb, setSelectedHizb] = useState<number | null>(null);
@@ -34,13 +34,15 @@ export default function Home() {
         <p className="app-subtitle">
           الشيخ محمود خليل الحصري — رواية ورش عن نافع
         </p>
-        <button
-          className="download-header-btn"
-          onClick={() => setDownloadOpen(true)}
-          aria-label="تحميل"
-        >
-          📥 تحميل
-        </button>
+        {isOnline && (
+          <button
+            className="download-header-btn"
+            onClick={() => setDownloadOpen(true)}
+            aria-label="تحميل"
+          >
+            📥 تحميل
+          </button>
+        )}
         <InstallButton />
       </header>
 

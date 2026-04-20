@@ -17,16 +17,7 @@ const serwist = new Serwist({
   skipWaiting: false, // Wait for user confirmation to avoid mid-session crashes
   clientsClaim: true,
   navigationPreload: true,
-  fallbacks: {
-    entries: [
-      {
-        url: "/~offline", // Fallback to the offline page if offline navigation fails
-        matcher({ request }) {
-          return request.mode === "navigate";
-        },
-      },
-    ],
-  },
+
   runtimeCaching: [
     // Cache audio files with CacheFirst (offline playback)
     {
