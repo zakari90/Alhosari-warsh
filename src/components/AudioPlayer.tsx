@@ -7,6 +7,7 @@ import {
   getPrevious,
   TOMON_LABELS,
 } from "@/lib/quran-data";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 interface AudioPlayerProps {
   hizb: number | null;
@@ -34,6 +35,8 @@ export default function AudioPlayer({
   const [stopAtHizbEnd, setStopAtHizbEnd] = useState(true);
   const [repeatTomon, setRepeatTomon] = useState(false);
   const [repeatDisplay, setRepeatDisplay] = useState(0);
+  const [isCurrentTrackCached, setIsCurrentTrackCached] = useState(false);
+  const { isStable, isChecking, isRestricted, verify } = useConnectivity();
 
   const REPEAT_MAX = 10;
 
@@ -44,6 +47,19 @@ export default function AudioPlayer({
   useEffect(() => {
     repeatCountRef.current = 0;
     setRepeatDisplay(0);
+
+    // Check if new track is cached
+    const checkCache = async () => {
+      if (typeof caches === "undefined" || !audioUrl) return;
+      try {
+        const cache = await caches.open("quran-audio-cache");
+        const match = await cache.match(audioUrl);
+        setIsCurrentTrackCached(!!match);
+      } catch {
+        setIsCurrentTrackCached(false);
+      }
+    };
+    checkCache();
   }, [audioUrl]);
 
   useEffect(() => {
@@ -57,11 +73,16 @@ export default function AudioPlayer({
 
     if (currentPathname === audioUrl) {
       if (audio.paused) {
-        audio.play().catch(() => {});
+        // Only auto-play if cached or stable
+        if (isCurrentTrackCached || isStable) {
+          audio.play().catch(() => {});
+        }
       }
     } else {
       audio.src = audioUrl;
-      audio.play().catch(() => {});
+      if (isCurrentTrackCached || isStable) {
+        audio.play().catch(() => {});
+      }
     }
 
     // Explicitly cache the audio file for offline use
@@ -144,15 +165,19 @@ export default function AudioPlayer({
     };
   }, [hizb, tomon, onTrackChange, stopAtHizbEnd, repeatTomon]);
 
-  const togglePlay = useCallback(() => {
+  const togglePlay = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
+      if (!isCurrentTrackCached && !isStable) {
+        const ok = await verify();
+        if (!ok) return;
+      }
       audio.play().catch(() => {});
     } else {
       audio.pause();
     }
-  }, []);
+  }, [isCurrentTrackCached, isStable, verify]);
 
   const seek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
@@ -184,6 +209,11 @@ export default function AudioPlayer({
         <span className="player-hizb">الحزب {hizb}</span>
         <span className="player-separator">—</span>
         <span className="player-tomon">{TOMON_LABELS[tomon - 1]}</span>
+        {isCurrentTrackCached ? (
+          <span className="player-cached-badge" title="ملف محفوظ">✅</span>
+        ) : (
+          <span className="player-remote-badge" title="بث مباشر">🌐</span>
+        )}
       </div>
       <div className="player-options">
         <button
@@ -236,8 +266,9 @@ export default function AudioPlayer({
           className="player-btn player-btn-play"
           onClick={togglePlay}
           aria-label={isPlaying ? "إيقاف" : "تشغيل"}
+          disabled={!isCurrentTrackCached && !isStable && isChecking}
         >
-          {isPlaying ? "⏸" : "▶"}
+          {isChecking && !isCurrentTrackCached ? "🔄" : isPlaying ? "⏸" : "▶"}
         </button>
 
         <button

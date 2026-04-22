@@ -67,6 +67,7 @@ async function pingAudioServer(): Promise<boolean> {
 export function useConnectivity() {
   const [isOnline, setIsOnline] = useState(true);
   const [isRestricted, setIsRestricted] = useState(false); // True if basic ping works but audio ping fails
+  const [isStable, setIsStable] = useState(false); // True if fully verified
   const [isChecking, setIsChecking] = useState(false);
   const recheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -78,8 +79,10 @@ export function useConnectivity() {
     if (basicReach) {
       fullyReachable = await pingAudioServer();
       setIsRestricted(!fullyReachable);
+      setIsStable(fullyReachable);
     } else {
       setIsRestricted(false);
+      setIsStable(false);
     }
 
     setIsOnline(basicReach);
@@ -144,6 +147,8 @@ export function useConnectivity() {
     const handleOffline = () => {
       if (!active) return;
       setIsOnline(false);
+      setIsStable(false);
+      setIsRestricted(false);
       startRecheck();
     };
 
@@ -158,5 +163,5 @@ export function useConnectivity() {
     };
   }, [verify, startRecheck, stopRecheck]);
 
-  return { isOnline, isRestricted, isChecking, verify };
+  return { isOnline, isRestricted, isStable, isChecking, verify };
 }

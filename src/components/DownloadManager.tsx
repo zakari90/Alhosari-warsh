@@ -22,7 +22,7 @@ export default function DownloadManager({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const abortRef = useRef(false);
 
-  const { isOnline, isRestricted, verify } = useConnectivity();
+  const { isOnline, isRestricted, isStable, isChecking, verify } = useConnectivity();
 
   useEffect(() => {
     if (open) {
@@ -169,16 +169,23 @@ export default function DownloadManager({
           </button>
         </div>
 
-        {!isOnline && !downloading && (
           <div className="download-offline-notice" style={{
             padding: "8px",
-            backgroundColor: "#fff3cd",
-            color: "#856404",
+            backgroundColor: isRestricted ? "rgba(245, 158, 11, 0.1)" : "#fff3cd",
+            color: isRestricted ? "#f59e0b" : "#856404",
             textAlign: "center",
             fontSize: "0.85rem",
-            marginBottom: "10px"
+            marginBottom: "10px",
+            border: "1px solid rgba(255,255,255,0.05)",
+            borderRadius: "8px"
           }}>
-            أنت غير متصل بالإنترنت. يمكنك فقط تصفح الملفات المحملة.
+            {!isOnline 
+              ? "أنت غير متصل بالإنترنت. يمكنك فقط تصفح الملفات المحملة."
+              : isRestricted 
+                ? "اتصالك بالإنترنت محدود. يرجى استخدام إنترنت غير مقيد للتحميل."
+                : isChecking
+                  ? "جارٍ التحقق من جودة الاتصال..."
+                  : "يرجى الانتظار حتى استقرار الاتصال بالإنترنت."}
           </div>
         )}
 
@@ -226,8 +233,8 @@ export default function DownloadManager({
             <button
               className="download-action-btn"
               onClick={handleDownloadAll}
-              disabled={!isOnline || isRestricted}
-              style={{ opacity: (!isOnline || isRestricted) ? 0.6 : 1 }}
+              disabled={!isStable || isChecking}
+              style={{ opacity: (!isStable || isChecking) ? 0.6 : 1 }}
             >
               <span className="download-action-icon">📥</span>
               <span className="download-action-text">
@@ -267,7 +274,7 @@ export default function DownloadManager({
                     key={h}
                     className={`download-hizb-card ${isCached ? "download-hizb-cached" : ""}`}
                     onClick={() => handleDownloadHizb(h)}
-                    disabled={isCached || (!isCached && (!isOnline || isRestricted))}
+                    disabled={isCached || (!isCached && (!isStable || isChecking))}
                   >
                     <span className="download-hizb-num">{h}</span>
                     {isCached && (

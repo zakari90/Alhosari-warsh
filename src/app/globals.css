@@ -499,6 +499,21 @@ body {
   font-weight: 600;
 }
 
+.player-cached-badge,
+.player-remote-badge {
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+  opacity: 0.8;
+}
+
+.player-cached-badge {
+  color: #10b981;
+}
+
+.player-remote-badge {
+  color: #f59e0b;
+}
+
 .player-separator {
   color: var(--text-muted);
   font-size: 0.75rem;
@@ -802,8 +817,51 @@ body {
 
 .download-header-btn:hover {
   background: rgba(212, 168, 83, 0.2);
-  box-shadow: 0 4px 16px var(--gold-glow);
+  box-shadow: 0 4px 12px var(--gold-glow);
   transform: translateY(-1px);
+}
+
+/* ========================================
+   Connectivity Status
+   ======================================== */
+
+.header-connectivity {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.header-connectivity span {
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-verifying {
+  color: var(--gold-light);
+  background: rgba(212, 168, 83, 0.1) !important;
+  border-color: rgba(212, 168, 83, 0.2) !important;
+}
+
+.status-offline {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.status-restricted {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+
+.status-stable {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
 }
 
 /* ========================================

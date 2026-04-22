@@ -10,7 +10,7 @@ interface HizbGridProps {
 }
 
 export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
-  const { isOnline, isChecking } = useConnectivity();
+  const { isOnline, isChecking, isStable, isRestricted } = useConnectivity();
   // Map of hizb number -> "full" | "partial" | "none"
   const [cacheStatus, setCacheStatus] = useState<
     Record<number, "full" | "partial" | "none">
@@ -58,12 +58,16 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
 
   return (
     <>
-      {(!isOnline || isChecking) && (
+      {(!isStable || isChecking) && (
         <div className="offline-legend">
           <div className="offline-legend-title">
-            {isChecking ? "🔄 جارٍ التحقق من الاتصال..." : "⚡ وضع بدون إنترنت"}
+            {isChecking 
+              ? "🔄 جارٍ التحقق من جودة الاتصال..." 
+              : isRestricted 
+                ? "⚠️ اتصال محدود - وضع بدون إنترنت مفعل"
+                : "⚡ وضع بدون إنترنت"}
           </div>
-          {!isOnline && (
+          {!isStable && !isChecking && (
             <div className="offline-legend-items">
               <span className="legend-item">
                 <span className="legend-dot legend-dot-green"></span> محفوظ

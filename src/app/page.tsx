@@ -14,7 +14,7 @@ export default function Home() {
   const [playingHizb, setPlayingHizb] = useState<number | null>(null);
   const [playingTomon, setPlayingTomon] = useState<number | null>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
-  const { isOnline } = useConnectivity();
+  const { isOnline, isChecking, isRestricted, isStable } = useConnectivity();
 
   const handleSelectTomon = useCallback((hizb: number, tomon: number) => {
     setPlayingHizb(hizb);
@@ -34,7 +34,19 @@ export default function Home() {
         <p className="app-subtitle">
           الشيخ محمود خليل الحصري — رواية ورش عن نافع
         </p>
-        {isOnline && (
+        <div className="header-connectivity">
+          {isChecking ? (
+            <span className="status-verifying">🔄 جارٍ التحقق...</span>
+          ) : !isOnline ? (
+            <span className="status-offline">⚡ وضع بدون إنترنت</span>
+          ) : isRestricted ? (
+            <span className="status-restricted">⚠️ اتصال محدود</span>
+          ) : isStable ? (
+            <span className="status-stable">✅ اتصال مستقر</span>
+          ) : null}
+        </div>
+
+        {isStable && (
           <button
             className="download-header-btn"
             onClick={() => setDownloadOpen(true)}
