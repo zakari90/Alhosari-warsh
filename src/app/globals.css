@@ -1,25 +1,25 @@
 :root {
-  /* Color Palette */
-  --bg-primary: #0a0f1a;
-  --bg-secondary: #111827;
-  --bg-card: #1a2236;
-  --bg-card-hover: #1f2a42;
-  --bg-glass: rgba(26, 34, 54, 0.85);
+  /* Light Green Theme Palette */
+  --bg-primary: #f4f7f4;
+  --bg-secondary: #eef2ee;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f9fbf9;
+  --bg-glass: rgba(255, 255, 255, 0.85);
 
-  --gold-primary: #d4a853;
-  --gold-light: #f0d48a;
-  --gold-dark: #b8892e;
-  --gold-glow: rgba(212, 168, 83, 0.3);
+  --gold-primary: #c29545;
+  --gold-light: #d4a853;
+  --gold-dark: #a37a34;
+  --gold-glow: rgba(194, 149, 69, 0.2);
 
-  --emerald: #10b981;
-  --emerald-glow: rgba(16, 185, 129, 0.2);
+  --emerald: #059669;
+  --emerald-glow: rgba(5, 150, 105, 0.15);
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #1e2923;
+  --text-secondary: #4b554f;
+  --text-muted: #6b7280;
 
-  --border-subtle: rgba(212, 168, 83, 0.15);
-  --border-card: rgba(212, 168, 83, 0.25);
+  --border-subtle: rgba(5, 150, 105, 0.1);
+  --border-card: rgba(5, 150, 105, 0.15);
 
   /* Typography */
   --font-arabic: "Noto Naskh Arabic", "Amiri", serif;
@@ -462,8 +462,8 @@ body {
   height: var(--player-height);
   background: linear-gradient(
     180deg,
-    rgba(17, 24, 39, 0.95) 0%,
-    rgba(10, 15, 26, 0.98) 100%
+    rgba(238, 242, 238, 0.95) 0%,
+    rgba(244, 247, 244, 0.98) 100%
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
