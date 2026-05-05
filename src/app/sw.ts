@@ -14,7 +14,7 @@ const VERSION = "v0.1.8";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: false, // Wait for user confirmation to avoid mid-session crashes
+  skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
 
@@ -33,15 +33,8 @@ const serwist = new Serwist({
         cacheName: "manifest-cache",
       }),
     },
-    // Cache static assets (fonts, images, etc.) with CacheFirst
-    {
-      matcher: /\.(?:js|css|woff2?|png|jpg|jpeg|svg|ico)$/,
-      handler: new CacheFirst({
-        cacheName: `static-assets-${VERSION}`, 
-      }),
-    },
 
-    // Let Serwist gracefully handle everything else (RSC payloads, etc.)
+    // Let Serwist gracefully handle everything else (Next.js assets, RSC, etc.)
     ...defaultCache,
   ],
 });

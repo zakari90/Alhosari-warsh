@@ -98,6 +98,8 @@ export default function DownloadManager({
 
       try {
         const cache = await caches.open("quran-audio-cache");
+        const keys = await cache.keys();
+        const cachedPaths = new Set(keys.map(k => new URL(k.url, window.location.origin).pathname));
         let done = 0;
 
         for (const h of hizbs) {
@@ -107,8 +109,9 @@ export default function DownloadManager({
               return;
             }
             const url = getAudioUrl(h, t);
-            const existing = await cache.match(url);
-            if (!existing) {
+            const path = new URL(url, window.location.origin).pathname;
+            
+            if (!cachedPaths.has(path)) {
               const response = await fetch(url);
               await cache.put(url, response);
             }
@@ -169,6 +172,7 @@ export default function DownloadManager({
           </button>
         </div>
 
+        {(!isStable || isChecking) && (
           <div className="download-offline-notice" style={{
             padding: "8px",
             backgroundColor: isRestricted ? "rgba(245, 158, 11, 0.1)" : "#fff3cd",

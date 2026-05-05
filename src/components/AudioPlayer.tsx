@@ -53,8 +53,12 @@ export default function AudioPlayer({
       if (typeof caches === "undefined" || !audioUrl) return;
       try {
         const cache = await caches.open("quran-audio-cache");
-        const match = await cache.match(audioUrl);
-        setIsCurrentTrackCached(!!match);
+        const keys = await cache.keys();
+        const path = new URL(audioUrl, window.location.origin).pathname;
+        const exists = keys.some(
+          (k) => new URL(k.url, window.location.origin).pathname === path
+        );
+        setIsCurrentTrackCached(exists);
       } catch {
         setIsCurrentTrackCached(false);
       }
@@ -169,15 +173,11 @@ export default function AudioPlayer({
     const audio = audioRef.current;
     if (!audio) return;
     if (audio.paused) {
-      if (!isCurrentTrackCached && !isStable) {
-        const ok = await verify();
-        if (!ok) return;
-      }
       audio.play().catch(() => {});
     } else {
       audio.pause();
     }
-  }, [isCurrentTrackCached, isStable, verify]);
+  }, []);
 
   const seek = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
