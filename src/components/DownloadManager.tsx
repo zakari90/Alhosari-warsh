@@ -256,6 +256,24 @@ export default function DownloadManager({
                 <small>استعرض أو اختر الأحزاب للتحميل</small>
               </span>
             </button>
+            <button
+              className="download-action-btn"
+              onClick={() => {
+                if (confirm("هل تريد إعادة ضبط التطبيق؟ (سيتم تحديث الملفات البرمجية ولن يتم حذف الصوت المحمل)")) {
+                  caches.keys().then(names => {
+                    Promise.all(names.filter(n => n !== "quran-audio-cache").map(n => caches.delete(n))).then(() => {
+                      window.location.reload();
+                    });
+                  });
+                }
+              }}
+            >
+              <span className="download-action-icon">⚙️</span>
+              <span className="download-action-text">
+                <strong>إصلاح التطبيق</strong>
+                <small>إعادة تحميل الملفات في حال وجود مشكلة</small>
+              </span>
+            </button>
           </div>
         )}
 

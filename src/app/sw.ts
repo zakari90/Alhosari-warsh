@@ -10,7 +10,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-const VERSION = "v0.1.8";
+const VERSION = "v0.2.0";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -19,6 +19,13 @@ const serwist = new Serwist({
   navigationPreload: true,
 
   runtimeCaching: [
+    {
+      matcher: ({ request }) => request.mode === "navigate",
+      handler: new NetworkFirst({
+        cacheName: "pages",
+        networkTimeoutSeconds: 3, // Fallback to cache after 3s to prevent hanging on slow mobile networks
+      }),
+    },
     // Cache audio files with CacheFirst (offline playback)
     {
       matcher: /\/audio\/.*\.mp3$/,
