@@ -1,5 +1,5 @@
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import { Serwist, CacheFirst } from "serwist";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -9,23 +9,24 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-// Service Worker for Quran App — v0.3.0
-// Strategy: precache app shell only; audio served from explicit user downloads.
-// No automatic background caching of pages or audio.
+// Service Worker for Quran App — v0.4.0
+// Enhanced for older devices (Huawei, etc.) with explicit navigation caching.
 
 const serwist = new Serwist({
-  // Precache the full app shell (HTML, JS, CSS) injected by next build.
-  // This ensures the app loads correctly even when fully offline.
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
-  // navigationPreload disabled — we're not using NetworkFirst for navigation,
-  // so preload would be wasted bandwidth.
   navigationPreload: false,
 
   runtimeCaching: [
-    // Audio: serve from the user-downloaded cache only.
-    // If not cached, pass through to the network without saving.
+    // 1. Explicitly handle navigation (pages) to ensure offline fallback works on all browsers.
+    {
+      matcher: ({ request }) => request.mode === "navigate",
+      handler: new CacheFirst({
+        cacheName: "pages-cache",
+      }),
+    },
+    // 2. Audio: serve from the user-downloaded cache only.
     {
       matcher: /\/audio\/.*\.mp3$/,
       handler: async ({ request }) => {
@@ -34,13 +35,19 @@ const serwist = new Serwist({
         if (cachedResponse) {
           return cachedResponse;
         }
-        // Not downloaded — stream directly without caching
         return fetch(request);
       },
     },
-    // All other requests (pages, assets) fall through to precache or network.
-    // No automatic runtime caching is performed.
   ],
+  // 3. Global fallback for when everything else fails
+  fallbacks: {
+    entries: [
+      {
+        url: "/",
+        matcher: ({ request }) => request.mode === "navigate",
+      },
+    ],
+  },
 });
 
 serwist.addEventListeners();
