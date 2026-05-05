@@ -10,7 +10,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-const VERSION = "v0.2.0";
+// Service Worker for Quran App
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -23,44 +23,25 @@ const serwist = new Serwist({
       matcher: ({ request }) => request.mode === "navigate",
       handler: new NetworkFirst({
         cacheName: "pages",
-        networkTimeoutSeconds: 3, // Fallback to cache after 3s to prevent hanging on slow mobile networks
+        networkTimeoutSeconds: 3, 
       }),
     },
-    // Cache audio files with CacheFirst (offline playback)
+    // Serve audio from cache if present, otherwise fetch but don't save
     {
       matcher: /\/audio\/.*\.mp3$/,
-      handler: new CacheFirst({
-        cacheName: "quran-audio-cache",
-      }),
+      handler: async ({ request }) => {
+        const cache = await caches.open("quran-audio-cache");
+        const cachedResponse = await cache.match(request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(request);
+      },
     },
-    // Instant manifest load with background update
-    {
-      matcher: /\/manifest\.json(\?.*)?$/,
-      handler: new StaleWhileRevalidate({
-        cacheName: "manifest-cache",
-      }),
-    },
-
-    // Let Serwist gracefully handle everything else (Next.js assets, RSC, etc.)
-    ...defaultCache,
+    // Precaching handles the rest of the application shell (JS, CSS, etc.)
   ],
 });
 
 serwist.addEventListeners();
 
-// Manual cleanup for non-standard/legacy caches created in previous fixes
-self.addEventListener("activate", (event) => {
-  console.log("Service Worker activating version:", VERSION);
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((cacheName) => {
-            // Delete old static-assets versions that are not the current one
-            return cacheName.startsWith("static-assets-") && cacheName !== `static-assets-${VERSION}`;
-          })
-          .map((cacheName) => caches.delete(cacheName))
-      );
-    })
-  );
-});
+// Service Worker activated

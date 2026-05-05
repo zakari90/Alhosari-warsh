@@ -88,20 +88,6 @@ export default function AudioPlayer({
         audio.play().catch(() => {});
       }
     }
-
-    // Explicitly cache the audio file for offline use
-    if (typeof caches !== "undefined") {
-      caches.open("quran-audio-cache").then(async (cache) => {
-        const existing = await cache.match(audioUrl);
-        if (!existing) {
-          try {
-            await cache.add(audioUrl);
-          } catch {
-            // Network error or offline — ignore
-          }
-        }
-      });
-    }
   }, [audioUrl]);
 
   useEffect(() => {
