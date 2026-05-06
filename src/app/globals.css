@@ -1,32 +1,37 @@
+/* ========================================
+   Quran Al-Hosari PWA — Global Styles
+   Islamic-themed dark design with gold accents
+   ======================================== */
+
 :root {
-  /* Light Green Theme Palette */
-  --bg-primary: #f4f7f4;
-  --bg-secondary: #eef2ee;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f9fbf9;
-  --bg-glass: rgba(255, 255, 255, 0.85);
+  /* Color Palette */
+  --bg-primary: #0a0f1a;
+  --bg-secondary: #111827;
+  --bg-card: #1a2236;
+  --bg-card-hover: #1f2a42;
+  --bg-glass: rgba(26, 34, 54, 0.85);
 
-  --gold-primary: #c29545;
-  --gold-light: #d4a853;
-  --gold-dark: #a37a34;
-  --gold-glow: rgba(194, 149, 69, 0.2);
+  --gold-primary: #d4a853;
+  --gold-light: #f0d48a;
+  --gold-dark: #b8892e;
+  --gold-glow: rgba(212, 168, 83, 0.3);
 
-  --emerald: #059669;
-  --emerald-glow: rgba(5, 150, 105, 0.15);
+  --emerald: #10b981;
+  --emerald-glow: rgba(16, 185, 129, 0.2);
 
-  --text-primary: #1e2923;
-  --text-secondary: #4b554f;
-  --text-muted: #6b7280;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 
-  --border-subtle: rgba(5, 150, 105, 0.1);
-  --border-card: rgba(5, 150, 105, 0.15);
+  --border-subtle: rgba(212, 168, 83, 0.15);
+  --border-card: rgba(212, 168, 83, 0.25);
 
   /* Typography */
   --font-arabic: "Noto Naskh Arabic", "Amiri", serif;
   --font-display: "Amiri", serif;
 
   /* Spacing */
-  --player-height: 180px;
+  --player-height: 110px;
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -227,85 +232,6 @@ body {
   font-weight: 500;
 }
 
-/* Cache status borders (offline mode) */
-
-.hizb-active {
-  outline: 2px solid var(--gold-primary);
-  outline-offset: -2px;
-  box-shadow: 0 0 16px var(--gold-glow);
-}
-
-.hizb-cached {
-  outline: 2px solid #10b981;
-  outline-offset: -2px;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-}
-
-.hizb-partial {
-  outline: 2px solid #f59e0b;
-  outline-offset: -2px;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
-}
-
-.hizb-not-cached {
-  outline: 2px solid #ef4444;
-  outline-offset: -2px;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
-}
-
-/* Offline legend banner */
-
-.offline-legend {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  text-align: center;
-  animation: overlayFadeIn 0.3s ease;
-}
-
-.offline-legend-title {
-  font-family: var(--font-arabic);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--gold-light);
-  margin-bottom: 0.5rem;
-}
-
-.offline-legend-items {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.legend-dot-green {
-  background: #10b981;
-}
-.legend-dot-orange {
-  background: #f59e0b;
-}
-.legend-dot-red {
-  background: #ef4444;
-}
-
 /* ========================================
    Tomon Dialog
    ======================================== */
@@ -389,7 +315,7 @@ body {
   align-items: center;
   justify-content: center;
   transition:
-    border var(--transition-fast),
+    background var(--transition-fast),
     color var(--transition-fast);
 }
 
@@ -417,7 +343,7 @@ body {
   cursor: pointer;
   transition:
     transform var(--transition-medium),
-    border var(--transition-medium),
+    background var(--transition-medium),
     box-shadow var(--transition-medium),
     border-color var(--transition-medium);
 }
@@ -462,8 +388,8 @@ body {
   height: var(--player-height);
   background: linear-gradient(
     180deg,
-    rgba(238, 242, 238, 0.95) 0%,
-    rgba(244, 247, 244, 0.98) 100%
+    rgba(17, 24, 39, 0.95) 0%,
+    rgba(10, 15, 26, 0.98) 100%
   );
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -497,21 +423,6 @@ body {
 .player-hizb {
   color: var(--gold-light);
   font-weight: 600;
-}
-
-.player-cached-badge,
-.player-remote-badge {
-  font-size: 0.75rem;
-  margin-right: 0.5rem;
-  opacity: 0.8;
-}
-
-.player-cached-badge {
-  color: #10b981;
-}
-
-.player-remote-badge {
-  color: #f59e0b;
 }
 
 .player-separator {
@@ -580,48 +491,6 @@ body {
   font-size: 1.1rem;
 }
 
-.player-options {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 0.25rem;
-}
-
-.player-btn-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 0.45rem 0.85rem;
-  border-radius: 100px;
-  border: 1px solid rgba(212, 168, 83, 0.1);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  opacity: 0.8;
-  transition: all var(--transition-medium);
-  white-space: nowrap;
-}
-
-.player-btn-toggle:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(212, 168, 83, 0.3);
-  opacity: 1;
-}
-
-.player-btn-toggle.active {
-  background: rgba(212, 168, 83, 0.15);
-  border-color: var(--gold-primary);
-  color: var(--gold-light);
-  opacity: 1;
-  box-shadow: 0 0 15px var(--gold-glow);
-  text-shadow: 0 0 8px var(--gold-glow);
-}
-
-.player-btn-toggle span {
-  font-family: var(--font-arabic);
-  line-height: 1;
-}
-
 /* Progress / Seek Bar */
 .player-progress {
   display: flex;
@@ -629,46 +498,42 @@ body {
   gap: 0.75rem;
   width: 100%;
   max-width: 480px;
-  direction: ltr;
-  margin-bottom: 2.5rem;
 }
 
 .player-time {
-  font-size: 0.95rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
-  min-width: 40px;
+  min-width: 36px;
   text-align: center;
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  direction: ltr;
 }
 
 .player-seekbar-wrapper {
   position: relative;
   flex: 1;
-  height: 6px;
+  height: 4px;
   background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-  overflow: visible;
+  border-radius: 2px;
+  overflow: hidden;
 }
 
 .player-seekbar-fill {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   height: 100%;
   background: linear-gradient(90deg, var(--gold-dark), var(--gold-primary));
-  border-radius: 3px;
+  border-radius: 2px;
   transition: width 100ms linear;
   pointer-events: none;
 }
 
 .player-seekbar {
   position: absolute;
-  top: -10px;
-  left: 0;
+  top: -6px;
+  right: 0;
   width: 100%;
-  height: 26px;
+  height: 16px;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
@@ -678,26 +543,27 @@ body {
 
 .player-seekbar::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--gold-primary);
-  box-shadow:
-    0 0 10px var(--gold-glow),
-    0 2px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 8px var(--gold-glow);
   cursor: pointer;
-  border: 2px solid var(--gold-light);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.player-seekbar-wrapper:hover .player-seekbar::-webkit-slider-thumb {
+  opacity: 1;
 }
 
 .player-seekbar::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: var(--gold-primary);
-  border: 2px solid var(--gold-light);
-  box-shadow:
-    0 0 10px var(--gold-glow),
-    0 2px 6px rgba(0, 0, 0, 0.4);
+  border: none;
+  box-shadow: 0 0 8px var(--gold-glow);
   cursor: pointer;
 }
 
@@ -817,79 +683,7 @@ body {
 
 .download-header-btn:hover {
   background: rgba(212, 168, 83, 0.2);
-  box-shadow: 0 4px 12px var(--gold-glow);
-  transform: translateY(-1px);
-}
-
-/* ========================================
-   Connectivity Status
-   ======================================== */
-
-.header-connectivity {
-  margin-top: 0.5rem;
-  display: flex;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.header-connectivity span {
-  padding: 4px 12px;
-  border-radius: 100px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.status-verifying {
-  color: var(--gold-light);
-  background: rgba(212, 168, 83, 0.1) !important;
-  border-color: rgba(212, 168, 83, 0.2) !important;
-}
-
-.status-offline {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1) !important;
-  border-color: rgba(239, 68, 68, 0.2) !important;
-}
-
-.status-restricted {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.1) !important;
-  border-color: rgba(245, 158, 11, 0.2) !important;
-}
-
-.status-stable {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1) !important;
-  border-color: rgba(16, 185, 129, 0.2) !important;
-}
-
-/* ========================================
-   Install Button
-   ======================================== */
-
-.install-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: var(--emerald);
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: var(--font-arabic);
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition:
-    background var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
-}
-
-.install-btn:hover {
-  background: rgba(16, 185, 129, 0.2);
-  box-shadow: 0 4px 16px var(--emerald-glow);
+  box-shadow: 0 4px 16px var(--gold-glow);
   transform: translateY(-1px);
 }
 
@@ -1217,127 +1011,4 @@ body {
 :focus-visible {
   outline: 2px solid var(--gold-primary);
   outline-offset: 2px;
-}
-/* ========================================
-   PWA Update Banner
-   ======================================== */
-
-.pwa-update-banner {
-  position: fixed;
-  bottom: calc(var(--player-height) + 1.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(90vw, 500px);
-  z-index: 1000;
-  animation: bannerSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes bannerSlideUp {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-.pwa-update-content {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--gold-primary);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.5),
-    0 0 20px var(--gold-glow);
-}
-
-.pwa-update-icon {
-  font-size: 1.5rem;
-  filter: drop-shadow(0 0 8px var(--gold-glow));
-}
-
-.pwa-update-text {
-  flex: 1;
-}
-
-.pwa-update-text strong {
-  display: block;
-  font-size: 1rem;
-  color: var(--gold-light);
-  margin-bottom: 0.15rem;
-}
-
-.pwa-update-text p {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.pwa-update-btn {
-  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
-  border: none;
-  border-radius: 10px;
-  color: var(--bg-primary);
-  padding: 0.6rem 1.2rem;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast);
-  white-space: nowrap;
-}
-
-.pwa-update-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px var(--gold-glow);
-}
-
-.pwa-update-btn:active {
-  transform: scale(0.98);
-}
-
-.pwa-update-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.pwa-update-error {
-  color: #f87171;
-  font-size: 0.78rem;
-  margin-top: 0.35rem;
-  font-weight: 600;
-  animation: bannerSlideUp 0.3s ease;
-}
-
-@media (max-width: 600px) {
-  .pwa-update-banner {
-    bottom: calc(var(--player-height) + 1rem);
-  }
-
-  .pwa-update-content {
-    padding: 0.85rem 1rem;
-    gap: 0.75rem;
-  }
-
-  .pwa-update-text strong {
-    font-size: 0.9rem;
-  }
-
-  .pwa-update-text p {
-    font-size: 0.75rem;
-  }
-
-  .pwa-update-btn {
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-  }
 }

@@ -1,38 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import SerwistInit from "@/components/SerwistInit";
 
 export const metadata: Metadata = {
-  title: "القرآن الكريم — الشيخ محمود خليل الحصري",
+  title: "القرآن الكريم — الحصري",
   description:
-    "تطبيق الاستماع للقرآن الكريم برواية ورش عن نافع بصوت الشيخ محمود خليل الحصري. استماع بجودة عالية مع دعم كامل للعمل بدون إنترنت.",
-  keywords: [
-    "القرآن الكريم",
-    "الحصري",
-    "ورش عن نافع",
-    "محمود خليل الحصري",
-    "تطبيق قرآن",
-    "بدون إنترنت",
-    "قرآن MP3",
-  ],
+    "تطبيق الاستماع للقرآن الكريم برواية ورش عن عاصم — تلاوة الشيخ محمود خليل الحصري",
   manifest: "/manifest.json",
-  authors: [{ name: "Sheikh Mahmoud Khalil Al-Hosari" }],
-  category: "religion",
-  openGraph: {
-    title: "القرآن الكريم — الحصري",
-    description:
-      "استمع للقرآن الكريم برواية ورش عن نافع بصوت الشيخ محمود خليل الحصري (بدون إنترنت)",
-    url: "https://github.com/zakari90/Alhosari-warsh",
-    siteName: "القرآن الكريم",
-    locale: "ar_SA",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "القرآن الكريم — الحصري",
-    description:
-      "استمع للقرآن الكريم برواية ورش عن نافع بصوت الشيخ محمود خليل الحصري",
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -66,10 +39,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>
-        <SerwistInit />
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
