@@ -34,13 +34,15 @@ export default function Home() {
         <p className="app-subtitle">
           الشيخ محمود خليل الحصري — رواية ورش عن نافع
         </p>
-        <button
-          className="download-header-btn"
-          onClick={() => setDownloadOpen(true)}
-          aria-label="تحميل"
-        >
-          📥 تحميل
-        </button>
+        {isOnline && (
+          <button
+            className="download-header-btn"
+            onClick={() => setDownloadOpen(true)}
+            aria-label="تحميل"
+          >
+            📥 تحميل
+          </button>
+        )}
         <InstallButton />
       </header>
 
