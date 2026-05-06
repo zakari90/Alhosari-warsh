@@ -5,12 +5,16 @@ import HizbGrid from "@/components/HizbGrid";
 import TomonDialog from "@/components/TomonDialog";
 import AudioPlayer from "@/components/AudioPlayer";
 import DownloadManager from "@/components/DownloadManager";
+import InstallButton from "@/components/InstallButton";
+import PwaUpdater from "@/components/PwaUpdater";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 export default function Home() {
   const [selectedHizb, setSelectedHizb] = useState<number | null>(null);
   const [playingHizb, setPlayingHizb] = useState<number | null>(null);
   const [playingTomon, setPlayingTomon] = useState<number | null>(null);
   const [downloadOpen, setDownloadOpen] = useState(false);
+  const { isOnline } = useConnectivity();
 
   const handleSelectTomon = useCallback((hizb: number, tomon: number) => {
     setPlayingHizb(hizb);
@@ -27,7 +31,9 @@ export default function Home() {
       <header className="app-header">
         <div className="header-ornament">﷽</div>
         <h1 className="app-title">القرآن الكريم</h1>
-        <p className="app-subtitle">الشيخ محمود خليل الحصري — رواية ورش</p>
+        <p className="app-subtitle">
+          الشيخ محمود خليل الحصري — رواية ورش عن نافع
+        </p>
         <button
           className="download-header-btn"
           onClick={() => setDownloadOpen(true)}
@@ -35,10 +41,11 @@ export default function Home() {
         >
           📥 تحميل
         </button>
+        <InstallButton />
       </header>
 
       <main className="app-main">
-        <HizbGrid onSelectHizb={setSelectedHizb} />
+        <HizbGrid onSelectHizb={setSelectedHizb} activeHizb={playingHizb} />
       </main>
 
       <TomonDialog
@@ -57,6 +64,8 @@ export default function Home() {
         tomon={playingTomon}
         onTrackChange={handleTrackChange}
       />
+
+      <PwaUpdater />
     </>
   );
 }

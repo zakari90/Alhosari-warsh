@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { TOTAL_AHZAB, TOMON_PER_HIZB, getAudioUrl } from "@/lib/quran-data";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 interface DownloadManagerProps {
   open: boolean;
@@ -18,7 +19,10 @@ export default function DownloadManager({
   const [cachedHizbs, setCachedHizbs] = useState<Set<number>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const abortRef = useRef(false);
+
+  const { isOnline, isRestricted, verify } = useConnectivity();
 
   useEffect(() => {
     if (open) {
@@ -28,10 +32,19 @@ export default function DownloadManager({
     }
   }, [open]);
 
+  // Abort if connection drops while downloading
+  useEffect(() => {
+    if (downloading && !isOnline) {
+      abortRef.current = true;
+      setErrorMsg("انقطع الاتصال بالإنترنت وتم إيقاف التحميل.");
+    }
+  }, [downloading, isOnline]);
+
   // Prevent body scroll when open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      setErrorMsg(null); // Clear errors when opened
     } else {
       document.body.style.overflow = "";
     }
@@ -65,10 +78,23 @@ export default function DownloadManager({
 
   const downloadHizbs = useCallback(
     async (hizbs: number[]) => {
+      setErrorMsg(null);
       setDownloading(true);
       abortRef.current = false;
       const total = hizbs.length * TOMON_PER_HIZB;
       setProgress({ done: 0, total });
+
+      // Verify connection before starting
+      const isCapable = await verify();
+      if (!isCapable) {
+        setDownloading(false);
+        setErrorMsg(
+          !isOnline
+            ? "لا يوجد اتصال بالإنترنت لبدء التحميل."
+            : "الإنترنت متصل لكن الخادم غير متاح. تأكد من اتصالك بإنترنت غير مقيد.",
+        );
+        return;
+      }
 
       try {
         const cache = await caches.open("quran-audio-cache");
@@ -143,6 +169,36 @@ export default function DownloadManager({
           </button>
         </div>
 
+        {!isOnline && !downloading && (
+          <div className="download-offline-notice" style={{
+            padding: "8px",
+            backgroundColor: "#fff3cd",
+            color: "#856404",
+            textAlign: "center",
+            fontSize: "0.85rem",
+            marginBottom: "10px"
+          }}>
+            أنت غير متصل بالإنترنت. يمكنك فقط تصفح الملفات المحملة.
+          </div>
+        )}
+
+        {errorMsg && (
+          <div
+            className="download-error-msg"
+            style={{
+              padding: "10px",
+              color: "#f87171",
+              backgroundColor: "rgba(248, 113, 113, 0.1)",
+              borderRadius: "8px",
+              margin: "0 20px 15px",
+              textAlign: "center",
+              fontSize: "0.9rem",
+            }}
+          >
+            {errorMsg}
+          </div>
+        )}
+
         {/* Downloading progress */}
         {downloading && (
           <div className="download-progress-section">
@@ -167,7 +223,12 @@ export default function DownloadManager({
         {/* Mode selection */}
         {!downloading && mode === "idle" && (
           <div className="download-mode-buttons">
-            <button className="download-action-btn" onClick={handleDownloadAll}>
+            <button
+              className="download-action-btn"
+              onClick={handleDownloadAll}
+              disabled={!isOnline || isRestricted}
+              style={{ opacity: (!isOnline || isRestricted) ? 0.6 : 1 }}
+            >
               <span className="download-action-icon">📥</span>
               <span className="download-action-text">
                 <strong>تحميل الكل</strong>
@@ -181,7 +242,7 @@ export default function DownloadManager({
               <span className="download-action-icon">🔢</span>
               <span className="download-action-text">
                 <strong>اختيار حزب</strong>
-                <small>اختر الأحزاب التي تريد تحميلها</small>
+                <small>استعرض أو اختر الأحزاب للتحميل</small>
               </span>
             </button>
           </div>
@@ -206,7 +267,7 @@ export default function DownloadManager({
                     key={h}
                     className={`download-hizb-card ${isCached ? "download-hizb-cached" : ""}`}
                     onClick={() => handleDownloadHizb(h)}
-                    disabled={isCached}
+                    disabled={isCached || (!isCached && (!isOnline || isRestricted))}
                   >
                     <span className="download-hizb-num">{h}</span>
                     {isCached && (

@@ -27,20 +27,58 @@ export default function AudioPlayer({
   onTrackChange,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const repeatCountRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [stopAtHizbEnd, setStopAtHizbEnd] = useState(true);
+  const [repeatTomon, setRepeatTomon] = useState(false);
+  const [repeatDisplay, setRepeatDisplay] = useState(0);
+
+  const REPEAT_MAX = 10;
 
   const audioUrl =
     hizb !== null && tomon !== null ? getAudioUrl(hizb, tomon) : null;
+
+  // Reset repeat count when track changes
+  useEffect(() => {
+    repeatCountRef.current = 0;
+    setRepeatDisplay(0);
+  }, [audioUrl]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
-    audio.src = audioUrl;
-    audio.play().catch(() => {});
-    setIsPlaying(true);
+    // Check if onEnded already started playing the new src
+    const currentSrcPath = window.location.origin
+      ? audio.src.replace(window.location.origin, "")
+      : audio.src;
+
+    if (currentSrcPath === audioUrl) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      }
+      setIsPlaying(!audio.paused);
+    } else {
+      audio.src = audioUrl;
+      audio.play().catch(() => {});
+      setIsPlaying(true);
+    }
+
+    // Explicitly cache the audio file for offline use
+    if (typeof caches !== "undefined") {
+      caches.open("quran-audio-cache").then(async (cache) => {
+        const existing = await cache.match(audioUrl);
+        if (!existing) {
+          try {
+            await cache.add(audioUrl);
+          } catch {
+            // Network error or offline — ignore
+          }
+        }
+      });
+    }
   }, [audioUrl]);
 
   useEffect(() => {
@@ -53,11 +91,42 @@ export default function AudioPlayer({
     const onPause = () => setIsPlaying(false);
     const onEnded = () => {
       if (hizb !== null && tomon !== null) {
-        const next = getNext(hizb, tomon);
-        if (next) {
-          onTrackChange(next.hizb, next.tomon);
-        } else {
+        if (repeatTomon && repeatCountRef.current < REPEAT_MAX - 1) {
+          repeatCountRef.current += 1;
+          setRepeatDisplay(repeatCountRef.current);
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        } else if (repeatTomon && repeatCountRef.current >= REPEAT_MAX - 1) {
+          // Finished all 10 repeats, move to next or stop
+          repeatCountRef.current = 0;
+          setRepeatDisplay(0);
+          if (stopAtHizbEnd && tomon === 8) {
+            setIsPlaying(false);
+          } else {
+            const next = getNext(hizb, tomon);
+            if (next) {
+              // Play immediately to bypass mobile background/lock-screen restrictions
+              const nextUrl = getAudioUrl(next.hizb, next.tomon);
+              audio.src = nextUrl;
+              audio.play().catch(() => {});
+              onTrackChange(next.hizb, next.tomon);
+            } else {
+              setIsPlaying(false);
+            }
+          }
+        } else if (stopAtHizbEnd && tomon === 8) {
           setIsPlaying(false);
+        } else {
+          const next = getNext(hizb, tomon);
+          if (next) {
+            // Play immediately to bypass mobile background/lock-screen restrictions
+            const nextUrl = getAudioUrl(next.hizb, next.tomon);
+            audio.src = nextUrl;
+            audio.play().catch(() => {});
+            onTrackChange(next.hizb, next.tomon);
+          } else {
+            setIsPlaying(false);
+          }
         }
       }
     };
@@ -75,7 +144,7 @@ export default function AudioPlayer({
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
     };
-  }, [hizb, tomon, onTrackChange]);
+  }, [hizb, tomon, onTrackChange, stopAtHizbEnd, repeatTomon]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -118,6 +187,42 @@ export default function AudioPlayer({
         <span className="player-separator">—</span>
         <span className="player-tomon">{TOMON_LABELS[tomon - 1]}</span>
       </div>
+      <div className="player-options">
+        <button
+          className={`player-btn player-btn-toggle ${
+            repeatTomon ? "active" : ""
+          }`}
+          onClick={() => {
+            if (repeatTomon) {
+              repeatCountRef.current = 0;
+              setRepeatDisplay(0);
+            }
+            setRepeatTomon(!repeatTomon);
+          }}
+          aria-label="تكرار الثمن 10 مرات"
+          title="تكرار الثمن 10 مرات"
+        >
+          <span>
+            تكرار الثمن{" "}
+            {repeatTomon
+              ? `(${repeatDisplay + 1}/${REPEAT_MAX})`
+              : `(${REPEAT_MAX}×)`}
+          </span>
+          🔁
+        </button>
+
+        <button
+          className={`player-btn player-btn-toggle ${
+            stopAtHizbEnd ? "active" : ""
+          }`}
+          onClick={() => setStopAtHizbEnd(!stopAtHizbEnd)}
+          aria-label="توقف عند نهاية الحزب"
+          title="توقف عند نهاية الحزب"
+        >
+          <span>توقف عند نهاية الحزب</span>
+          🛑
+        </button>
+      </div>
 
       <div className="player-controls">
         <button
@@ -126,7 +231,7 @@ export default function AudioPlayer({
           aria-label="السابق"
           disabled={!getPrevious(hizb, tomon)}
         >
-          ⏮
+          ⏭
         </button>
 
         <button
@@ -143,7 +248,7 @@ export default function AudioPlayer({
           aria-label="التالي"
           disabled={!getNext(hizb, tomon)}
         >
-          ⏭
+          ⏮
         </button>
       </div>
 
