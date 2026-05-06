@@ -37,13 +37,22 @@ export default function AudioPlayer({
 
   const REPEAT_MAX = 10;
 
+  const [isCached, setIsCached] = useState(false);
+
   const audioUrl =
     hizb !== null && tomon !== null ? getAudioUrl(hizb, tomon) : null;
 
-  // Reset repeat count when track changes
+  // Reset repeat count and check cache when track changes
   useEffect(() => {
     repeatCountRef.current = 0;
     setRepeatDisplay(0);
+
+    if (audioUrl && typeof caches !== "undefined") {
+      caches.open("quran-audio-cache").then(async (cache) => {
+        const existing = await cache.match(audioUrl);
+        setIsCached(!!existing);
+      });
+    }
   }, [audioUrl]);
 
   useEffect(() => {
@@ -73,9 +82,12 @@ export default function AudioPlayer({
         if (!existing) {
           try {
             await cache.add(audioUrl);
+            setIsCached(true);
           } catch {
             // Network error or offline — ignore
           }
+        } else {
+          setIsCached(true);
         }
       });
     }
@@ -186,6 +198,15 @@ export default function AudioPlayer({
         <span className="player-hizb">الحزب {hizb}</span>
         <span className="player-separator">—</span>
         <span className="player-tomon">{TOMON_LABELS[tomon - 1]}</span>
+        {isCached && (
+          <span 
+            className="player-cached-badge" 
+            title="متوفر بدون إنترنت"
+            style={{ color: "#10b981", fontSize: "0.8rem", marginRight: "0.5rem" }}
+          >
+            ✓
+          </span>
+        )}
       </div>
       <div className="player-options">
         <button

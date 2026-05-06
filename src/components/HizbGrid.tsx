@@ -41,49 +41,45 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
     }
   }, []);
 
-  // Re-check cache status whenever we go offline
+  // Re-check cache status on mount and whenever connectivity changes
   useEffect(() => {
-    if (!isOnline) {
-      checkAllCacheStatus();
-    }
+    checkAllCacheStatus();
   }, [isOnline, checkAllCacheStatus]);
 
   const getBorderClass = (hizb: number) => {
     const classes: string[] = [];
     if (activeHizb === hizb) classes.push("hizb-active");
-    if (!isOnline) {
-      const s = cacheStatus[hizb];
-      if (s === "full") classes.push("hizb-cached");
-      else if (s === "partial") classes.push("hizb-partial");
-      else classes.push("hizb-not-cached");
-    }
+    
+    const s = cacheStatus[hizb];
+    if (s === "full") classes.push("hizb-cached");
+    else if (s === "partial") classes.push("hizb-partial");
+    else if (!isOnline) classes.push("hizb-not-cached"); // Only show red when offline
+
     return classes.join(" ");
   };
 
   return (
     <>
-      {(!isOnline || isChecking) && (
-        <div className="offline-legend">
-          <div className="offline-legend-title">
-            {isChecking ? "🔄 جارٍ التحقق من الاتصال..." : "⚡ وضع بدون إنترنت"}
-          </div>
+      <div className="offline-legend">
+        <div className="offline-legend-title">
+          {isChecking ? "🔄 جارٍ التحقق من الاتصال..." : !isOnline ? "⚡ وضع بدون إنترنت" : "📱 حالة الحفظ"}
+        </div>
+        <div className="offline-legend-items">
+          <span className="legend-item">
+            <span className="legend-dot legend-dot-green"></span> محفوظ
+            بالكامل
+          </span>
+          <span className="legend-item">
+            <span className="legend-dot legend-dot-orange"></span> محفوظ
+            جزئياً
+          </span>
           {!isOnline && (
-            <div className="offline-legend-items">
-              <span className="legend-item">
-                <span className="legend-dot legend-dot-green"></span> محفوظ
-                بالكامل
-              </span>
-              <span className="legend-item">
-                <span className="legend-dot legend-dot-orange"></span> محفوظ
-                جزئياً
-              </span>
-              <span className="legend-item">
-                <span className="legend-dot legend-dot-red"></span> غير محفوظ
-              </span>
-            </div>
+            <span className="legend-item">
+              <span className="legend-dot legend-dot-red"></span> غير محفوظ
+            </span>
           )}
         </div>
-      )}
+      </div>
       <div className="hizb-grid">
         {Array.from({ length: TOTAL_AHZAB }, (_, i) => i + 1).map((hizb) => (
           <button

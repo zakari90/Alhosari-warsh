@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { TOMON_PER_HIZB, TOMON_LABELS } from "@/lib/quran-data";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { TOMON_PER_HIZB, TOMON_LABELS, getAudioUrl } from "@/lib/quran-data";
+import { useConnectivity } from "@/lib/useConnectivity";
 
 interface TomonDialogProps {
   hizb: number | null;
@@ -15,6 +16,25 @@ export default function TomonDialog({
   onClose,
 }: TomonDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const { isOnline } = useConnectivity();
+  const [cachedTomon, setCachedTomon] = useState<Set<number>>(new Set());
+
+  const checkCacheStatus = useCallback(async () => {
+    if (hizb === null || typeof caches === "undefined") return;
+    try {
+      const cache = await caches.open("quran-audio-cache");
+      const cached = new Set<number>();
+      
+      for (let t = 1; t <= TOMON_PER_HIZB; t++) {
+        const url = getAudioUrl(hizb, t);
+        const match = await cache.match(url);
+        if (match) cached.add(t);
+      }
+      setCachedTomon(cached);
+    } catch {
+      // Cache API unavailable
+    }
+  }, [hizb]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -22,10 +42,11 @@ export default function TomonDialog({
 
     if (hizb !== null) {
       if (!dialog.open) dialog.showModal();
+      checkCacheStatus();
     } else {
       if (dialog.open) dialog.close();
     }
-  }, [hizb]);
+  }, [hizb, checkCacheStatus]);
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDialogElement>) => {
     if (e.target === dialogRef.current) {
@@ -55,19 +76,26 @@ export default function TomonDialog({
           </div>
           <div className="tomon-grid">
             {Array.from({ length: TOMON_PER_HIZB }, (_, i) => i + 1).map(
-              (tomon) => (
-                <button
-                  key={tomon}
-                  className="tomon-card"
-                  onClick={() => {
-                    onSelectTomon(hizb, tomon);
-                    onClose();
-                  }}
-                >
-                  <span className="tomon-number">{tomon}</span>
-                  <span className="tomon-label">{TOMON_LABELS[tomon - 1]}</span>
-                </button>
-              ),
+              (tomon) => {
+                const isCached = cachedTomon.has(tomon);
+                const borderClass = isCached 
+                  ? "hizb-cached" 
+                  : !isOnline ? "hizb-not-cached" : "";
+
+                return (
+                  <button
+                    key={tomon}
+                    className={`tomon-card ${borderClass}`}
+                    onClick={() => {
+                      onSelectTomon(hizb, tomon);
+                      onClose();
+                    }}
+                  >
+                    <span className="tomon-number">{tomon}</span>
+                    <span className="tomon-label">{TOMON_LABELS[tomon - 1]}</span>
+                  </button>
+                );
+              },
             )}
           </div>
         </div>
