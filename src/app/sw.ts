@@ -1,3 +1,4 @@
+import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
 import { Serwist, CacheFirst } from "serwist";
 
@@ -9,37 +10,24 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-// Service Worker for Quran App — v0.4.0
-// Enhanced for older devices (Huawei, etc.) with explicit navigation caching.
+// Service Worker for Quran App — v0.4.1 (Reverted to Automatic Caching Logic)
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
   skipWaiting: true,
   clientsClaim: true,
-  navigationPreload: false,
-
+  navigationPreload: true,
   runtimeCaching: [
-    // 1. Explicitly handle navigation (pages) to ensure offline fallback works on all browsers.
-    {
-      matcher: ({ request }) => request.mode === "navigate",
-      handler: new CacheFirst({
-        cacheName: "pages-cache",
-      }),
-    },
-    // 2. Audio: serve from the user-downloaded cache only.
+    ...defaultCache,
+    // Audio: Automatically cache on playback (Old Logic)
     {
       matcher: /\/audio\/.*\.mp3$/,
-      handler: async ({ request }) => {
-        const cache = await caches.open("quran-audio-cache");
-        const cachedResponse = await cache.match(request);
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(request);
-      },
+      handler: new CacheFirst({
+        cacheName: "quran-audio-cache",
+      }),
     },
   ],
-  // 3. Global fallback for when everything else fails
+  // Keep the navigation fallback for reliability
   fallbacks: {
     entries: [
       {
