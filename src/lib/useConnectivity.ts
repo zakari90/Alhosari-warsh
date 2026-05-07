@@ -7,7 +7,7 @@ const PING_TIMEOUT_MS = 4000;
 const RECHECK_INTERVAL_MS = 30000;
 
 /**
- * Verify real connectivity by making a HEAD request to the origin.
+ * Verify real connectivity by making a GET request to the app manifest.
  * Returns true only if the server responds within the timeout.
  */
 async function pingServer(): Promise<boolean> {
@@ -15,9 +15,9 @@ async function pingServer(): Promise<boolean> {
   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
 
   try {
-    // Ping manifest.json with a cache-buster instead of the root /
+    // Ping manifest.json with a cache-buster to bypass SW/browser cache
     const res = await fetch("/manifest.json?v=" + Date.now(), {
-      method: "HEAD",
+      method: "GET",
       cache: "no-store",
       signal: controller.signal,
     });
@@ -30,17 +30,20 @@ async function pingServer(): Promise<boolean> {
 }
 
 /**
- * Verifies if the audio server specifically is reachable and not blocked
- * by a captive portal (which often returns 200 OK but HTML content).
+ * Verifies if the audio server is reachable and not blocked by a captive
+ * portal (which often returns 200 OK but with HTML content).
+ *
+ * Call this ON-DEMAND only (e.g. right before starting a download).
+ * Do NOT call it on page load — it makes a real network request to the
+ * audio CDN and will be cached by the service worker unnecessarily.
  */
-async function pingAudioServer(): Promise<boolean> {
+export async function pingAudioServer(): Promise<boolean> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
 
   try {
-    // Check the first MP3 file using HEAD with Range: 0-0 for better proxy compatibility
     const res = await fetch(getAudioUrl(1, 1), {
-      method: "HEAD",
+      method: "GET",
       headers: { Range: "bytes=0-0" },
       cache: "no-store",
       signal: controller.signal,
@@ -60,41 +63,40 @@ async function pingAudioServer(): Promise<boolean> {
 /**
  * Hook that provides reliable online/offline status.
  *
- * Unlike raw `navigator.onLine`, this hook **pings the server** when
+ * Unlike raw `navigator.onLine`, this hook pings the app server when
  * the browser fires the `online` event to confirm real connectivity.
  * While offline it re-checks every 30 seconds for auto-recovery.
+ *
+ * Audio-server reachability (`isRestricted`) is NOT checked automatically
+ * on mount or browser events — call `pingAudioServer()` explicitly before
+ * initiating a download to avoid unwanted requests on every page reload.
  */
 export function useConnectivity() {
   const [isOnline, setIsOnline] = useState(true);
-  const [isRestricted, setIsRestricted] = useState(false); // True if basic ping works but audio ping fails
+  const [isRestricted, setIsRestricted] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const recheckRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const verify = useCallback(async () => {
     setIsChecking(true);
     const basicReach = await pingServer();
-    let fullyReachable = false;
 
-    if (basicReach) {
-      fullyReachable = await pingAudioServer();
-      setIsRestricted(!fullyReachable);
-    } else {
+    if (!basicReach) {
+      // Clear restricted state when fully offline
       setIsRestricted(false);
     }
 
     setIsOnline(basicReach);
     setIsChecking(false);
-    return fullyReachable; // Return true only if fully capable of downloading audio
+    return basicReach;
   }, []);
 
-  // Start / stop the periodic recheck when offline
   const startRecheck = useCallback(() => {
     if (recheckRef.current) return;
     recheckRef.current = setInterval(async () => {
       const ok = await pingServer();
       if (ok) {
         setIsOnline(true);
-        // Stop polling once back online
         if (recheckRef.current) {
           clearInterval(recheckRef.current);
           recheckRef.current = null;
@@ -111,19 +113,17 @@ export function useConnectivity() {
   }, []);
 
   useEffect(() => {
-    // Initial check
     if (typeof navigator !== "undefined") {
       if (!navigator.onLine) {
         setIsOnline(false);
         startRecheck();
       } else {
-        // Verify on mount too — navigator.onLine can lie
+        // Verify on mount — navigator.onLine can lie (e.g. captive portals)
         verify();
       }
     }
 
     const handleOnline = async () => {
-      // Browser says online, but verify first
       const reachable = await verify();
       if (!reachable) {
         startRecheck();
@@ -147,5 +147,5 @@ export function useConnectivity() {
     };
   }, [verify, startRecheck, stopRecheck]);
 
-  return { isOnline, isRestricted, isChecking, verify };
+  return { isOnline, isRestricted, setIsRestricted, isChecking, verify };
 }

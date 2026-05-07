@@ -1,6 +1,6 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { CacheFirst, NetworkFirst, NetworkOnly, Serwist } from "serwist";
+import { CacheFirst, NetworkFirst, Serwist } from "serwist";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -10,7 +10,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-const VERSION = "v0.1.4";
+const VERSION = "v0.1.3";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
@@ -28,16 +28,11 @@ const serwist = new Serwist({
     ],
   },
   runtimeCaching: [
-    // Ignore pings and manifest to prevent IndexedDB bloat from unique URLs (?v=...)
-    {
-      matcher: ({ url }) => url.pathname === "/manifest.json" || url.searchParams.has("v"),
-      handler: new NetworkOnly(),
-    },
     // Cache audio files with CacheFirst (offline playback)
     {
       matcher: /\/audio\/.*\.mp3$/,
       handler: new CacheFirst({
-        cacheName: "quran-audio-cache",
+        cacheName: "quran-audio-cache", // Persistent name across versions
       }),
     },
     // Cache CSS/JS/fonts with CacheFirst
