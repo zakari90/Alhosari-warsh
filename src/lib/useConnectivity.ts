@@ -47,6 +47,7 @@ export function useConnectivity() {
     typeof navigator !== "undefined" ? navigator.onLine : true
   );
   const [isRestricted, setIsRestricted] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
     const handleOnline = () => {
@@ -72,10 +73,12 @@ export function useConnectivity() {
    * On-demand verification used by DownloadManager.
    */
   const verify = useCallback(async () => {
+    setIsChecking(true);
     const reachable = await pingAudioServer();
     setIsRestricted(!reachable);
+    setIsChecking(false);
     return reachable;
   }, []);
 
-  return { isOnline, isRestricted, setIsRestricted, verify };
+  return { isOnline, isRestricted, setIsRestricted, isChecking, verify };
 }
