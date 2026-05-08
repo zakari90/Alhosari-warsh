@@ -1,51 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getAudioUrl } from "./quran-data";
 
-// ─── Internet checking is intentionally DISABLED ─────────────────────────────
-// All ping-based verification has been commented out to prevent any extra
+// ─── Internet checking is intentionally DISABLED for auto-run ────────────────
+// All automatic ping-based verification is disabled to prevent extra
 // network requests on page load or on a timer.
-// The hook relies solely on the browser's native navigator.onLine + events,
-// which are zero-cost (no network traffic).
-//
-// If you need to re-enable deep checking in the future, un-comment the
-// pingServer / pingAudioServer blocks and the verify() / startRecheck() calls
-// inside useConnectivity().
+// The hook relies on the browser's native navigator.onLine for general status.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// const PING_TIMEOUT_MS = 4000;
-// const RECHECK_INTERVAL_MS = 30000;
-
-// /**
-//  * Verify real connectivity by making a GET request to the app manifest.
-//  * Returns true only if the server responds within the timeout.
-//  */
-// async function pingServer(): Promise<boolean> {
-//   const controller = new AbortController();
-//   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
-//   try {
-//     const res = await fetch("/manifest.json?v=" + Date.now(), {
-//       method: "GET",
-//       cache: "no-store",
-//       signal: controller.signal,
-//     });
-//     return res.ok;
-//   } catch {
-//     return false;
-//   } finally {
-//     clearTimeout(timer);
-//   }
-// }
-
 /**
- * Verifies if the audio server is reachable and not blocked by a captive
- * portal (which often returns 200 OK but with HTML content).
- *
- * Call this ON-DEMAND only (e.g. right before starting a download).
- * NEVER call it on page load — it hits the audio CDN unnecessarily.
+ * Verifies if the audio server is reachable.
+ * Call this ON-DEMAND only.
  */
 export async function pingAudioServer(): Promise<boolean> {
+  console.log("📡 [Network Request] pingAudioServer() - Checking audio server reachability...");
   const PING_TIMEOUT_MS = 4000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
@@ -57,11 +26,12 @@ export async function pingAudioServer(): Promise<boolean> {
       signal: controller.signal,
     });
     const contentType = res.headers.get("content-type") || "";
-    return (
-      (res.ok || res.status === 206) &&
-      (contentType.includes("audio") || contentType.includes("octet-stream"))
-    );
-  } catch {
+    const ok = (res.ok || res.status === 206) &&
+               (contentType.includes("audio") || contentType.includes("octet-stream"));
+    console.log(`📡 [Network Response] pingAudioServer() - ${ok ? "Success" : "Failed"}`);
+    return ok;
+  } catch (err) {
+    console.log("📡 [Network Error] pingAudioServer() - Connection failed or timed out");
     return false;
   } finally {
     clearTimeout(timer);
@@ -69,11 +39,8 @@ export async function pingAudioServer(): Promise<boolean> {
 }
 
 /**
- * Hook that provides online/offline status using only the browser's native
- * navigator.onLine and window online/offline events.
- *
- * Zero extra network requests are made — no pings, no polling timers.
- * Audio downloads must be gated by calling pingAudioServer() manually.
+ * Hook that provides online/offline status.
+ * Zero extra network requests are made automatically.
  */
 export function useConnectivity() {
   const [isOnline, setIsOnline] = useState(
@@ -82,8 +49,12 @@ export function useConnectivity() {
   const [isRestricted, setIsRestricted] = useState(false);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
+    const handleOnline = () => {
+      console.log("🌐 [Browser Event] Online");
+      setIsOnline(true);
+    };
     const handleOffline = () => {
+      console.log("🌐 [Browser Event] Offline");
       setIsOnline(false);
       setIsRestricted(false);
     };
@@ -97,26 +68,14 @@ export function useConnectivity() {
     };
   }, []);
 
-  // ── Deep verify (disabled) ──────────────────────────────────────────────
-  // const verify = useCallback(async () => {
-  //   const ok = await pingServer();
-  //   setIsOnline(ok);
-  //   if (!ok) setIsRestricted(false);
-  //   return ok;
-  // }, []);
-  //
-  // const startRecheck = useCallback(() => {
-  //   if (recheckRef.current) return;
-  //   recheckRef.current = setInterval(async () => {
-  //     const ok = await pingServer();
-  //     if (ok) {
-  //       setIsOnline(true);
-  //       clearInterval(recheckRef.current!);
-  //       recheckRef.current = null;
-  //     }
-  //   }, RECHECK_INTERVAL_MS);
-  // }, []);
-  // ───────────────────────────────────────────────────────────────────────
+  /**
+   * On-demand verification used by DownloadManager.
+   */
+  const verify = useCallback(async () => {
+    const reachable = await pingAudioServer();
+    setIsRestricted(!reachable);
+    return reachable;
+  }, []);
 
-  return { isOnline, isRestricted, setIsRestricted };
+  return { isOnline, isRestricted, setIsRestricted, verify };
 }

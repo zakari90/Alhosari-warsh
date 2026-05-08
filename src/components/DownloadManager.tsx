@@ -109,6 +109,7 @@ export default function DownloadManager({
             const url = getAudioUrl(h, t);
             const existing = await cache.match(url);
             if (!existing) {
+              console.log(`📥 [Network Request] DownloadManager - Fetching ${url}`);
               const response = await fetch(url);
               await cache.put(url, response);
             }

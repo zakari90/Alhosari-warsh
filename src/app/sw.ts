@@ -22,7 +22,14 @@ const serwist = new Serwist({
     // Nothing is downloaded proactively — only files the user explicitly
     // requests will be stored here.
     {
-      matcher: /\/audio\/.*\.mp3$/,
+      matcher: ({ url }) => {
+        const isAudio = url.pathname.includes("/audio/") && url.pathname.endsWith(".mp3");
+        if (isAudio) {
+          // Note: Matcher runs often, but this helps see what's being requested
+          // console.log(`🔍 [SW Matcher] Audio request: ${url.pathname}`);
+        }
+        return isAudio;
+      },
       handler: new CacheFirst({
         cacheName: "quran-audio-cache", // Persistent — survives SW version bumps
       }),

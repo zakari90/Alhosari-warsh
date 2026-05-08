@@ -81,6 +81,7 @@ export default function AudioPlayer({
         const existing = await cache.match(audioUrl);
         if (!existing) {
           try {
+            console.log(`🎧 [Network Request] AudioPlayer - Caching track for playback: ${audioUrl}`);
             await cache.add(audioUrl);
             setIsCached(true);
           } catch {
