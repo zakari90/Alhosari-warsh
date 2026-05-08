@@ -25,8 +25,7 @@ const serwist = new Serwist({
       matcher: ({ url }) => {
         const isAudio = url.pathname.includes("/audio/") && url.pathname.endsWith(".mp3");
         if (isAudio) {
-          // Note: Matcher runs often, but this helps see what's being requested
-          // console.log(`🔍 [SW Matcher] Audio request: ${url.pathname}`);
+          console.log("use indexed - SW audio request detected");
         }
         return isAudio;
       },

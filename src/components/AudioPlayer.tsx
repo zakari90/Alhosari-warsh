@@ -48,6 +48,7 @@ export default function AudioPlayer({
     setRepeatDisplay(0);
 
     if (audioUrl && typeof caches !== "undefined") {
+      console.log("use indexed - checking track cache status");
       caches.open("quran-audio-cache").then(async (cache) => {
         const existing = await cache.match(audioUrl);
         setIsCached(!!existing);
@@ -77,6 +78,7 @@ export default function AudioPlayer({
 
     // Explicitly cache the audio file for offline use
     if (typeof caches !== "undefined") {
+      console.log("use indexed - caching track for offline");
       caches.open("quran-audio-cache").then(async (cache) => {
         const existing = await cache.match(audioUrl);
         if (!existing) {

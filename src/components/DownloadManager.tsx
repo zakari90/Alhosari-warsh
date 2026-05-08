@@ -54,6 +54,7 @@ export default function DownloadManager({
   }, [open]);
 
   const checkCachedHizbs = useCallback(async () => {
+    console.log("use indexed - checkCachedHizbs");
     try {
       const cache = await caches.open("quran-audio-cache");
       const keys = await cache.keys();
@@ -97,6 +98,7 @@ export default function DownloadManager({
       }
 
       try {
+        console.log("use indexed - downloadHizbs cache access");
         const cache = await caches.open("quran-audio-cache");
         let done = 0;
 

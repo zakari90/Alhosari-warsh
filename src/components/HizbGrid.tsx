@@ -18,6 +18,7 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
 
   const checkAllCacheStatus = useCallback(async () => {
     if (typeof caches === "undefined") return;
+    console.log("use indexed - checking all hizb cache status");
     try {
       const cache = await caches.open("quran-audio-cache");
       const keys = await cache.keys();

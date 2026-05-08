@@ -21,6 +21,7 @@ export default function TomonDialog({
 
   const checkCacheStatus = useCallback(async () => {
     if (hizb === null || typeof caches === "undefined") return;
+    console.log("use indexed - checking tomon cache status");
     try {
       const cache = await caches.open("quran-audio-cache");
       const cached = new Set<number>();
