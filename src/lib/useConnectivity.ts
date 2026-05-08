@@ -43,13 +43,18 @@ export async function pingAudioServer(): Promise<boolean> {
  * Zero extra network requests are made automatically.
  */
 export function useConnectivity() {
-  const [isOnline, setIsOnline] = useState(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
+  // Initialize to true for both server and client to avoid hydration mismatch.
+  // The actual state will be updated in useEffect once on the client.
+  const [isOnline, setIsOnline] = useState(true);
   const [isRestricted, setIsRestricted] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
+    // Sync with actual browser status on mount
+    if (typeof navigator !== "undefined") {
+      setIsOnline(navigator.onLine);
+    }
+
     const handleOnline = () => {
       console.log("🌐 [Browser Event] Online");
       setIsOnline(true);
