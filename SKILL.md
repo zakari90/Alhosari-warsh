@@ -72,5 +72,5 @@ To make network activity transparent, use the following logging emojis:
 ---
 
 ## 🧞 Custom Skill Phrases
-When working on this project, ensure every function that touches the database includes a log prefixed with:
+When developing this project, ensure every function that touches the database includes a log prefixed with:
 `console.log("use indexed - [description]");`
