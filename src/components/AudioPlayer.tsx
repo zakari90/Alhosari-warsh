@@ -60,10 +60,12 @@ export default function AudioPlayer({
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
-    // Check if onEnded already started playing the new src
-    const currentSrcPath = window.location.origin
-      ? audio.src.replace(window.location.origin, "")
-      : audio.src;
+    let currentSrcPath = "";
+    try {
+      currentSrcPath = new URL(audio.src, window.location.origin).pathname;
+    } catch {
+      currentSrcPath = audio.src;
+    }
 
     if (currentSrcPath === audioUrl) {
       if (audio.paused) {

@@ -22,7 +22,9 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
     try {
       const cache = await caches.open("quran-audio-cache");
       const keys = await cache.keys();
-      const cachedUrls = new Set(keys.map((r) => new URL(r.url).pathname));
+      const cachedUrls = new Set(
+        keys.map((r) => new URL(r.url, window.location.origin).pathname),
+      );
 
       const status: Record<number, "full" | "partial" | "none"> = {};
       for (let hizb = 1; hizb <= TOTAL_AHZAB; hizb++) {

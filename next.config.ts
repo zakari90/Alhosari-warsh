@@ -7,6 +7,4 @@ const withSerwist = withSerwistInit({
   reloadOnOnline: false,
 });
 
-export default withSerwist({
-  reactCompiler: true,
-});
+export default withSerwist({});

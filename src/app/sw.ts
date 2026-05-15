@@ -12,7 +12,7 @@ declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 const VERSION = "v0.1.7";
 
 const serwist = new Serwist({
-  precacheEntries: self.__SW_MANIFEST,
+  precacheEntries: self.__SW_MANIFEST || [],
   skipWaiting: true,
   clientsClaim: true,
   // navigationPreload removed — it caused an extra network request on every
