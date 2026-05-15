@@ -9,7 +9,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-const VERSION = "v0.1.5";
+const VERSION = "v0.1.6";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,

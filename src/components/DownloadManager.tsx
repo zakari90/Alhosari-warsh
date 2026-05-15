@@ -126,7 +126,7 @@ export default function DownloadManager({
       setDownloading(false);
       checkCachedHizbs();
     },
-    [checkCachedHizbs],
+    [checkCachedHizbs, verify, isOnline],
   );
 
   const handleDownloadAll = () => {
