@@ -9,7 +9,7 @@ declare global {
 
 declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
-const VERSION = "v0.1.7";
+const VERSION = "v0.1.8";
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST || [],
@@ -40,9 +40,47 @@ const serwist = new Serwist({
         cacheName: `static-assets-cache-${VERSION}`,
       }),
     },
-    // NOTE: defaultCache from @serwist/next is intentionally NOT included.
-    // It adds NetworkFirst for pages/navigation which causes the SW to fetch
-    // the page from the server on every reload, creating unwanted downloads.
+    // Google Fonts: cache-first so they work offline after first load.
+    {
+      matcher: ({ url }) =>
+        url.origin === "https://fonts.googleapis.com" ||
+        url.origin === "https://fonts.gstatic.com",
+      handler: new CacheFirst({
+        cacheName: "google-fonts-cache",
+      }),
+    },
+    // Next.js page navigation & RSC payloads: serve from cache when offline.
+    // This is the critical handler — without it, Next.js throws a client-side
+    // exception in airplane mode because RSC fetch requests fail with no handler.
+    {
+      matcher: ({ request, url }) => {
+        const isNavigation = request.mode === "navigate";
+        const isRsc =
+          url.pathname.startsWith("/_next/") ||
+          url.searchParams.has("_rsc");
+        return isNavigation || isRsc;
+      },
+      handler: {
+        handle: async ({ request }: { request: Request }) => {
+          try {
+            // Try network first
+            const networkResponse = await fetch(request);
+            // Cache successful responses for offline use
+            const cache = await caches.open(`pages-cache-${VERSION}`);
+            cache.put(request, networkResponse.clone());
+            return networkResponse;
+          } catch {
+            // Offline: try the cache
+            const cached = await caches.match(request);
+            if (cached) return cached;
+            // Last resort: serve the precached root shell
+            const shell = await caches.match("/");
+            if (shell) return shell;
+            return new Response("Offline", { status: 503 });
+          }
+        },
+      },
+    },
   ],
 });
 
