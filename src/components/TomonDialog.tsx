@@ -21,7 +21,7 @@ export default function TomonDialog({
 
   const checkCacheStatus = useCallback(async () => {
     if (hizb === null || typeof caches === "undefined") return;
-    console.log("Cache API - checking tomon cache status");
+    console.log("use indexed - checking tomon cache status");
     try {
       const cache = await caches.open("quran-audio-cache");
       const cached = new Set<number>();
@@ -43,10 +43,7 @@ export default function TomonDialog({
 
     if (hizb !== null) {
       if (!dialog.open) dialog.showModal();
-      // Wrap in a promise to avoid synchronous setState warning and cascading renders
-      Promise.resolve().then(() => {
-        checkCacheStatus();
-      });
+      checkCacheStatus();
     } else {
       if (dialog.open) dialog.close();
     }

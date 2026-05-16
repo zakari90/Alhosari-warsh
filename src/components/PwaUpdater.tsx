@@ -75,10 +75,6 @@ export default function PwaUpdater() {
 
 declare global {
   interface Window {
-    serwist: {
-      messageSkipWaiting(): void;
-      addEventListener(event: string, callback: () => void): void;
-      removeEventListener(event: string, callback: () => void): void;
-    };
+    serwist: any;
   }
 }

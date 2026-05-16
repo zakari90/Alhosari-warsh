@@ -45,12 +45,10 @@ export default function AudioPlayer({
   // Reset repeat count and check cache when track changes
   useEffect(() => {
     repeatCountRef.current = 0;
-    Promise.resolve().then(() => {
-      setRepeatDisplay(0);
-    });
+    setRepeatDisplay(0);
 
     if (audioUrl && typeof caches !== "undefined") {
-      console.log("Cache API - checking track cache status");
+      console.log("use indexed - checking track cache status");
       caches.open("quran-audio-cache").then(async (cache) => {
         const existing = await cache.match(audioUrl);
         setIsCached(!!existing);
@@ -82,7 +80,7 @@ export default function AudioPlayer({
 
     // Explicitly cache the audio file for offline use
     if (typeof caches !== "undefined") {
-      console.log("Cache API - caching track for offline");
+      console.log("use indexed - caching track for offline");
       caches.open("quran-audio-cache").then(async (cache) => {
         const existing = await cache.match(audioUrl);
         if (!existing) {

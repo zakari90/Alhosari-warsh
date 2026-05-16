@@ -24,8 +24,37 @@ export default function DownloadManager({
 
   const { isOnline, isRestricted, verify } = useConnectivity();
 
+  useEffect(() => {
+    if (open) {
+      checkCachedHizbs();
+    } else {
+      setMode("idle");
+    }
+  }, [open]);
+
+  // Abort if connection drops while downloading
+  useEffect(() => {
+    if (downloading && !isOnline) {
+      abortRef.current = true;
+      setErrorMsg("انقطع الاتصال بالإنترنت وتم إيقاف التحميل.");
+    }
+  }, [downloading, isOnline]);
+
+  // Prevent body scroll when open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      setErrorMsg(null); // Clear errors when opened
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   const checkCachedHizbs = useCallback(async () => {
-    console.log("Cache API - checkCachedHizbs");
+    console.log("use indexed - checkCachedHizbs");
     try {
       const cache = await caches.open("quran-audio-cache");
       const keys = await cache.keys();
@@ -50,39 +79,6 @@ export default function DownloadManager({
     }
   }, []);
 
-  useEffect(() => {
-    if (open) {
-      checkCachedHizbs();
-    } else {
-      setMode("idle");
-    }
-  }, [open, checkCachedHizbs]);
-
-  // Abort if connection drops while downloading
-  useEffect(() => {
-    if (downloading && !isOnline) {
-      abortRef.current = true;
-      Promise.resolve().then(() => {
-        setErrorMsg("انقطع الاتصال بالإنترنت وتم إيقاف التحميل.");
-      });
-    }
-  }, [downloading, isOnline]);
-
-  // Prevent body scroll when open
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      Promise.resolve().then(() => {
-        setErrorMsg(null); // Clear errors when opened
-      });
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
   const downloadHizbs = useCallback(
     async (hizbs: number[]) => {
       setErrorMsg(null);
@@ -104,7 +100,7 @@ export default function DownloadManager({
       }
 
       try {
-        console.log("Cache API - downloadHizbs cache access");
+        console.log("use indexed - downloadHizbs cache access");
         const cache = await caches.open("quran-audio-cache");
         let done = 0;
 

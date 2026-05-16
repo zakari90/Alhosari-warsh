@@ -18,7 +18,7 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
 
   const checkAllCacheStatus = useCallback(async () => {
     if (typeof caches === "undefined") return;
-    console.log("Cache API - checking all hizb cache status");
+    console.log("use indexed - checking all hizb cache status");
     try {
       const cache = await caches.open("quran-audio-cache");
       const keys = await cache.keys();
@@ -46,10 +46,7 @@ export default function HizbGrid({ onSelectHizb, activeHizb }: HizbGridProps) {
 
   // Re-check cache status on mount and whenever connectivity changes
   useEffect(() => {
-    // Wrap in a promise to avoid synchronous setState warning and cascading renders
-    Promise.resolve().then(() => {
-      checkAllCacheStatus();
-    });
+    checkAllCacheStatus();
   }, [isOnline, checkAllCacheStatus]);
 
   const getBorderClass = (hizb: number) => {
