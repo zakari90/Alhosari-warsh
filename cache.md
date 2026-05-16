@@ -1,63 +1,51 @@
-# Service Worker Caching Comparison
+# Caching Strategy & Offline Support
 
-This document summarizes the differences between the working version and the current version of the Quran App's Service Worker (`sw.ts`) and caching strategy.
+This document outlines the current caching strategy implemented in the Quran App to ensure reliable offline support and performance.
 
-## Key Differences
+## 1. Service Worker Configuration (`sw.ts`)
 
-### 1. Missing `defaultCache` (Primary Issue)
-- **Working Version:** Includes `...defaultCache` from `@serwist/next/worker`. This provides out-of-the-box caching for:
-    - Static chunks and scripts.
-    - Images, fonts, and icons.
-    - Next.js internal data (RSC payloads, metadata).
-    - API responses and manifests.
-- **Current Version:** Removes `defaultCache` entirely. This means most of the application shell and Next.js internal requests are not being cached unless they happen to match a custom rule.
+The Service Worker uses **Serwist** to manage caching. It implements the following strategies:
 
-### 2. Manual Page/RSC Handling
-- **Current Version:** Uses a custom `handler` for page navigation and RSC (`_rsc` params).
-- **Strategy:** It uses a **Network First** approach.
-- **Problem:** When online, it always hits the network. This makes it appear as if caching "isn't working" because files are served from the cache only when the network fails. The working version's `defaultCache` uses optimized strategies (like `StaleWhileRevalidate`) that make the app feel faster while online.
+### A. Navigation Requests (The App Shell)
+- **Strategy:** `NetworkFirst`
+- **Cache Name:** `pages-cache`
+- **Fallback:** If the network is unavailable, it serves the cached version of the requested page (primarily the homepage `/`).
+- **Timeout:** 5 seconds before falling back to cache.
 
-### 3. Narrow Static Asset Matching
-- **Current Version:** The matcher `/\.(js|css|woff2?)$/` is too restrictive.
-- **Missing:** It excludes `.json`, `.png`, `.ico`, `.svg`, and other assets that the working version handles automatically via `defaultCache`.
+### B. Audio Files (`/audio/*.mp3`)
+- **Strategy:** `CacheFirst`
+- **Cache Name:** `quran-audio-cache`
+- **Persistent:** This cache is NOT versioned with the app version to ensure that downloaded audio files (Ahzab) survive application updates.
 
-### 4. Cache Versioning
-- **Current Version:** Uses a hardcoded `VERSION = "v0.1.9"` in cache names (e.g., `pages-cache-${VERSION}`).
-- **Problem:** If the version is changed or managed inconsistently between the SW and the app, it leads to cache misses or redundant storage. The working version relies on Serwist's default management which is more seamless.
-
-### 5. Audio Matching Strategy
-- **Working Version:** Uses a direct regex: `urlPattern: /\/audio\/.*\.mp3$/`.
-- **Current Version:** Uses a functional `matcher` with `console.log`. While functionally similar, the working version's approach is simpler and less prone to execution overhead.
+### C. Static Assets & Next.js Internals
+- **Strategy:** `defaultCache` (from `@serwist/next/worker`)
+- **Coverage:** Automatically handles Next.js chunks, CSS, JS, images, and RSC payloads using optimized strategies (mostly `StaleWhileRevalidate`).
 
 ---
 
-## Recommended Fix
+## 2. PWA Configuration (`next.config.ts`)
 
-To resolve the caching issues in the current project, it is recommended to restore the `defaultCache` while keeping the persistent audio cache logic from your "Offline Plan."
+To ensure the homepage is always available offline, we use explicit precaching:
+- **Precache Entry:** `{ url: "/", revision: "v0.1.9" }`
+- **Rationale:** Providing an explicit revision ensures that the Service Worker correctly identifies, caches, and updates the root document, which is critical for mobile browsers.
 
-### Proposed `sw.ts` Structure:
+---
 
-```typescript
-import { defaultCache } from "@serwist/next/worker";
-import { CacheFirst, Serwist } from "serwist";
-// ... types and declarations
+## 3. Mobile-Specific Enhancements
 
-const serwist = new Serwist({
-  precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
-  clientsClaim: true,
-  runtimeCaching: [
-    // 1. Your Persistent Audio Cache (Keep this)
-    {
-      urlPattern: /\/audio\/.*\.mp3$/,
-      handler: new CacheFirst({
-        cacheName: "quran-audio-cache",
-      }),
-    },
-    // 2. Restore Standard Next.js Caching
-    ...defaultCache,
-  ],
-});
+Mobile browsers (Chrome Android, Safari iOS) can be more restrictive with Service Workers. We've implemented:
+1. **Explicit Revisions:** Prevents the browser from serving a stale `/` or failing to cache it.
+2. **UI Error Reporting:** `SerwistInit.tsx` now displays registration errors directly in a red banner at the top of the UI for easier debugging without a console.
+3. **Connectivity Verification:** `useConnectivity.ts` and `DownloadManager.tsx` verify actual reachability of the audio server, not just the device's "Online" status.
 
-serwist.addEventListeners();
-```
+---
+
+## 4. Troubleshooting
+
+- **Buttons stay white even after download:** 
+  - Check if the Service Worker is registered (Look for the "🚀 Serwist Service Worker registered successfully" log).
+  - Verify that the audio files are actually in the `quran-audio-cache` using DevTools -> Application -> Cache Storage.
+- **App doesn't load offline:**
+  - Check for "SW Error" banner at the top.
+  - Ensure the site is served over HTTPS (required for Service Workers).
+  - On mobile, try "Add to Home Screen" to see if the PWA behavior improves.
