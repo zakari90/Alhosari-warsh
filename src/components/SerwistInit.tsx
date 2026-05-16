@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function SerwistInit() {
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if ("serviceWorker" in navigator && typeof window !== "undefined") {
       const registerSerwist = async () => {
@@ -15,9 +17,10 @@ export default function SerwistInit() {
           (window as any).serwist = serwist;
 
           await serwist.register();
-          console.log("Serwist Service Worker registered successfully");
-        } catch (error) {
-          console.error("Serwist Service Worker registration failed:", error);
+          console.log("🚀 Serwist Service Worker registered successfully");
+        } catch (err: any) {
+          console.error("❌ Serwist Service Worker registration failed:", err);
+          setError(err?.message || "Registration failed");
         }
       };
 
@@ -25,5 +28,25 @@ export default function SerwistInit() {
     }
   }, []);
 
-  return null;
+  if (!error) return null;
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: "#fee2e2",
+        color: "#b91c1c",
+        padding: "8px",
+        textAlign: "center",
+        zIndex: 9999,
+        fontSize: "12px",
+        borderBottom: "1px solid #f87171",
+      }}
+    >
+      SW Error: {error}
+    </div>
+  );
 }
