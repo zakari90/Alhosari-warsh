@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useConnectivity } from "@/lib/useConnectivity";
 
 export default function PwaUpdater() {
   const [showUpdate, setShowUpdate] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [updating, setUpdating] = useState(false);
-  const { verify } = useConnectivity();
 
   useEffect(() => {
     if (
@@ -30,18 +26,9 @@ export default function PwaUpdater() {
     }
   }, []);
 
-  const handleUpdate = async () => {
-    setError(null);
-    setUpdating(true);
-
-    // Verify real connectivity before applying the update
-    const reachable = await verify();
-    if (!reachable) {
-      setError("لا يوجد اتصال بالإنترنت. جرب لاحقاً.");
-      setUpdating(false);
-      return;
-    }
-
+  const handleUpdate = () => {
+    // Force the waiting SW to take control immediately — no network check needed.
+    // skipWaiting works fully offline; the new SW is already downloaded.
     if (typeof window !== "undefined" && window.serwist) {
       window.serwist.messageSkipWaiting();
       window.location.reload();
@@ -59,14 +46,9 @@ export default function PwaUpdater() {
           <p>
             يتوفر إصدار جديد من التطبيق. قم بالتحديث للحصول على آخر التحسينات.
           </p>
-          {error && <p className="pwa-update-error">{error}</p>}
         </div>
-        <button
-          className="pwa-update-btn"
-          onClick={handleUpdate}
-          disabled={updating}
-        >
-          {updating ? "جارٍ التحقق..." : "تحديث الآن"}
+        <button className="pwa-update-btn" onClick={handleUpdate}>
+          تحديث الآن
         </button>
       </div>
     </div>
