@@ -28,7 +28,9 @@ export default function InstallButton() {
 
     // Check if already in standalone mode
     if (window.matchMedia("(display-mode: standalone)").matches) {
-      setCanInstall(false);
+      Promise.resolve().then(() => {
+        setCanInstall(false);
+      });
     }
 
     return () => window.removeEventListener("beforeinstallprompt", handler);

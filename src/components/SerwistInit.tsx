@@ -9,18 +9,19 @@ export default function SerwistInit() {
     if ("serviceWorker" in navigator && typeof window !== "undefined") {
       const registerSerwist = async () => {
         try {
-          // @ts-ignore
+          // @ts-expect-error - @serwist/window may not have types in this environment
           const { Serwist } = await import("@serwist/window");
           const serwist = new Serwist("/sw.js", { scope: "/" });
 
           // Expose to window for PwaUpdater
-          (window as any).serwist = serwist;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          window.serwist = serwist as any;
 
           await serwist.register();
           console.log("🚀 Serwist Service Worker registered successfully");
-        } catch (err: any) {
+        } catch (err: unknown) {
           console.error("❌ Serwist Service Worker registration failed:", err);
-          setError(err?.message || "Registration failed");
+          setError(err instanceof Error ? err.message : "Registration failed");
         }
       };
 
@@ -49,4 +50,15 @@ export default function SerwistInit() {
       SW Error: {error}
     </div>
   );
+}
+
+declare global {
+  interface Window {
+    serwist: {
+      messageSkipWaiting(): void;
+      register(): Promise<ServiceWorkerRegistration | undefined>;
+      addEventListener(event: string, callback: () => void): void;
+      removeEventListener(event: string, callback: () => void): void;
+    };
+  }
 }

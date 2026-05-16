@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import { getAudioUrl } from "./quran-data";
 
 // ─── Internet checking is intentionally DISABLED for auto-run ────────────────
@@ -30,7 +30,7 @@ export async function pingAudioServer(): Promise<boolean> {
                (contentType.includes("audio") || contentType.includes("octet-stream"));
     console.log(`📡 [Network Response] pingAudioServer() - ${ok ? "Success" : "Failed"}`);
     return ok;
-  } catch (err) {
+  } catch {
     console.log("📡 [Network Error] pingAudioServer() - Connection failed or timed out");
     return false;
   } finally {
@@ -43,36 +43,30 @@ export async function pingAudioServer(): Promise<boolean> {
  * Zero extra network requests are made automatically.
  */
 export function useConnectivity() {
-  // Initialize to true for both server and client to avoid hydration mismatch.
-  // The actual state will be updated in useEffect once on the client.
-  const [isOnline, setIsOnline] = useState(true);
+  const isOnline = useSyncExternalStore(
+    (callback) => {
+      window.addEventListener("online", callback);
+      window.addEventListener("offline", callback);
+      return () => {
+        window.removeEventListener("online", callback);
+        window.removeEventListener("offline", callback);
+      };
+    },
+    () => navigator.onLine,
+    () => true // SSR value
+  );
+
   const [isRestricted, setIsRestricted] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
+  // Sync isRestricted when going offline
   useEffect(() => {
-    // Sync with actual browser status on mount
-    if (typeof navigator !== "undefined") {
-      setIsOnline(navigator.onLine);
+    if (!isOnline) {
+      Promise.resolve().then(() => {
+        setIsRestricted(false);
+      });
     }
-
-    const handleOnline = () => {
-      console.log("🌐 [Browser Event] Online");
-      setIsOnline(true);
-    };
-    const handleOffline = () => {
-      console.log("🌐 [Browser Event] Offline");
-      setIsOnline(false);
-      setIsRestricted(false);
-    };
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
+  }, [isOnline]);
 
   /**
    * On-demand verification used by DownloadManager.
