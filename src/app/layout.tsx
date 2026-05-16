@@ -1,28 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Amiri, Noto_Naskh_Arabic } from "next/font/google";
 import "./globals.css";
 import SerwistInit from "@/components/SerwistInit";
-
-// Self-hosted via next/font — downloaded at build time, served from same origin.
-// This means fonts are bundled into the app, precached by Serwist, and work
-// fully offline without any Google CDN requests at runtime.
-const amiri = Amiri({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
-  variable: "--font-amiri",
-  display: "swap",
-  // System Arabic fonts used while the self-hosted file is loading
-  fallback: ["Scheherazade New", "Arabic Typesetting", "Traditional Arabic", "serif"],
-});
-
-const notoNaskhArabic = Noto_Naskh_Arabic({
-  subsets: ["arabic"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-noto-naskh",
-  display: "swap",
-  // System Arabic fonts used while the self-hosted file is loading
-  fallback: ["Segoe UI Historic", "Arial Unicode MS", "Tahoma", "sans-serif"],
-});
 
 export const metadata: Metadata = {
   title: "القرآن الكريم — الشيخ محمود خليل الحصري",
@@ -63,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#d4a017",
+  themeColor: "#d4a853",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -75,8 +53,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${amiri.variable} ${notoNaskhArabic.variable}`}>
-      <head></head>
+    <html lang="ar" dir="rtl">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>
         <SerwistInit />
         {children}

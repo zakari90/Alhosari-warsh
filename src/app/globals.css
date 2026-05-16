@@ -1,32 +1,29 @@
 :root {
-  /* ── Gold Theme ─────────────────────────────────────── */
+  /* Color Palette - Light Green Theme */
+  --bg-primary: #f2f8f2;
+  --bg-secondary: #e8f2e8;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f9fcf9;
+  --bg-glass: rgba(255, 255, 255, 0.9);
 
-  /* Backgrounds — warm parchment / dark-gold */
-  --bg-primary: #fdf6e3;
-  --bg-secondary: #f9eed0;
-  --bg-card: #fffdf7;
-  --bg-card-hover: #fff9ec;
-  --bg-glass: rgba(253, 246, 227, 0.92);
+  --gold-primary: #8d734a;
+  --gold-light: #a68d59;
+  --gold-dark: #705a38;
+  --gold-glow: rgba(141, 115, 74, 0.12);
 
-  /* Gold scale — rich and vibrant */
-  --gold-primary: #b8860b;   /* DarkGoldenrod  */
-  --gold-light:   #d4a017;   /* bright gold    */
-  --gold-bright:  #f0c040;   /* highlight gold */
-  --gold-dark:    #7a5800;   /* deep gold      */
-  --gold-glow:    rgba(212, 160, 23, 0.22);
+  --emerald: #059669;
+  --emerald-glow: rgba(5, 150, 105, 0.1);
 
-  /* Text — warm dark browns keyed to gold */
-  --text-primary:   #2c1a00;
-  --text-secondary: #5c3d00;
-  --text-muted:     #9a7a3a;
+  --text-primary: #1a2e21;
+  --text-secondary: #4a6352;
+  --text-muted: #7a9181;
 
-  /* Borders */
-  --border-subtle: rgba(184, 134, 11, 0.14);
-  --border-card:   rgba(184, 134, 11, 0.22);
+  --border-subtle: rgba(26, 46, 33, 0.08);
+  --border-card: rgba(26, 46, 33, 0.12);
 
-  /* Typography — variables are injected by next/font on <html> as --font-amiri and --font-noto-naskh */
-  --font-arabic: var(--font-noto-naskh), var(--font-amiri), "Noto Naskh Arabic", "Amiri", serif;
-  --font-display: var(--font-amiri), "Amiri", serif;
+  /* Typography */
+  --font-arabic: "Noto Naskh Arabic", "Amiri", serif;
+  --font-display: "Amiri", serif;
 
   /* Spacing */
   --player-height: 180px;
@@ -62,22 +59,22 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Warm gold radial glows */
+  /* Subtle Islamic geometric pattern - Light version */
   background-image:
     radial-gradient(
       circle at 20% 50%,
-      rgba(212, 160, 23, 0.10) 0%,
-      transparent 55%
+      rgba(141, 115, 74, 0.05) 0%,
+      transparent 50%
     ),
     radial-gradient(
       circle at 80% 20%,
-      rgba(240, 192, 64, 0.08) 0%,
-      transparent 55%
+      rgba(5, 150, 105, 0.04) 0%,
+      transparent 50%
     ),
     radial-gradient(
-      circle at 50% 85%,
-      rgba(184, 134, 11, 0.07) 0%,
-      transparent 55%
+      circle at 50% 80%,
+      rgba(141, 115, 74, 0.04) 0%,
+      transparent 50%
     );
 }
 
@@ -90,7 +87,7 @@ body {
   padding: 2.5rem 1rem 1.5rem;
   background: linear-gradient(
     180deg,
-    rgba(212, 160, 23, 0.10) 0%,
+    rgba(141, 115, 74, 0.06) 0%,
     transparent 100%
   );
   border-bottom: 1px solid var(--border-subtle);

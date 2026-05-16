@@ -34,11 +34,19 @@ const serwist = new Serwist({
       }),
     },
     // Static assets (JS, CSS, fonts): cache-first after first load.
-    // Fonts are self-hosted via next/font — no CDN requests needed.
     {
       matcher: /\.(js|css|woff2?)$/,
       handler: new CacheFirst({
         cacheName: `static-assets-cache-${VERSION}`,
+      }),
+    },
+    // Google Fonts: cache-first so they work offline after first load.
+    {
+      matcher: ({ url }) =>
+        url.origin === "https://fonts.googleapis.com" ||
+        url.origin === "https://fonts.gstatic.com",
+      handler: new CacheFirst({
+        cacheName: "google-fonts-cache",
       }),
     },
     // Next.js page navigation & RSC payloads: serve from cache when offline.
