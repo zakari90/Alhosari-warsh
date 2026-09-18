@@ -34,10 +34,24 @@ export default function AudioPlayer({
   const [stopAtHizbEnd, setStopAtHizbEnd] = useState(true);
   const [repeatTomon, setRepeatTomon] = useState(false);
   const [repeatDisplay, setRepeatDisplay] = useState(0);
+  const [playbackRate, setPlaybackRate] = useState(1);
 
   const REPEAT_MAX = 10;
 
   const [isCached, setIsCached] = useState(false);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate, isPlaying, audioUrl]);
+
+  const cyclePlaybackRate = useCallback(() => {
+    const rates = [1, 1.25, 1.5, 1.75, 2];
+    const currentIndex = rates.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % rates.length;
+    setPlaybackRate(rates[nextIndex]);
+  }, [playbackRate]);
 
   const audioUrl =
     hizb !== null && tomon !== null ? getAudioUrl(hizb, tomon) : null;
@@ -247,6 +261,16 @@ export default function AudioPlayer({
         >
           <span>توقف عند نهاية الحزب</span>
           🛑
+        </button>
+
+        <button
+          className="player-btn player-btn-toggle"
+          onClick={cyclePlaybackRate}
+          aria-label="سرعة التشغيل"
+          title="سرعة التشغيل"
+        >
+          <span style={{ direction: "ltr", display: "inline-block" }}>{playbackRate}x</span>
+          ⚡
         </button>
       </div>
 
