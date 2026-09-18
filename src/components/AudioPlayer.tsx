@@ -108,6 +108,33 @@ export default function AudioPlayer({
         } else {
           setIsCached(true);
         }
+
+        // Precache next two tracks to ensure seamless autoplay
+        if (hizb !== null && tomon !== null) {
+          const next1 = getNext(hizb, tomon);
+          if (next1) {
+            const nextUrl1 = getAudioUrl(next1.hizb, next1.tomon);
+            const nextExisting1 = await cache.match(nextUrl1);
+            if (!nextExisting1) {
+              try {
+                console.log(`🎧 [Network Request] AudioPlayer - Precaching next track (1/2): ${nextUrl1}`);
+                cache.add(nextUrl1).catch(() => {});
+              } catch {}
+            }
+            
+            const next2 = getNext(next1.hizb, next1.tomon);
+            if (next2) {
+              const nextUrl2 = getAudioUrl(next2.hizb, next2.tomon);
+              const nextExisting2 = await cache.match(nextUrl2);
+              if (!nextExisting2) {
+                try {
+                  console.log(`🎧 [Network Request] AudioPlayer - Precaching next track (2/2): ${nextUrl2}`);
+                  cache.add(nextUrl2).catch(() => {});
+                } catch {}
+              }
+            }
+          }
+        }
       });
     }
   }, [audioUrl]);
