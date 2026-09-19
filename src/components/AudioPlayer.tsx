@@ -44,7 +44,7 @@ export default function AudioPlayer({
     if (audioRef.current) {
       audioRef.current.playbackRate = playbackRate;
     }
-  }, [playbackRate, isPlaying, audioUrl]);
+  }, [playbackRate, isPlaying]);
 
   const cyclePlaybackRate = useCallback(() => {
     const rates = [1, 1.25, 1.5, 1.75, 2];
@@ -99,7 +99,9 @@ export default function AudioPlayer({
         const existing = await cache.match(audioUrl);
         if (!existing) {
           try {
-            console.log(`🎧 [Network Request] AudioPlayer - Caching track for playback: ${audioUrl}`);
+            console.log(
+              `🎧 [Network Request] AudioPlayer - Caching track for playback: ${audioUrl}`,
+            );
             await cache.add(audioUrl);
             setIsCached(true);
           } catch {
@@ -117,18 +119,22 @@ export default function AudioPlayer({
             const nextExisting1 = await cache.match(nextUrl1);
             if (!nextExisting1) {
               try {
-                console.log(`🎧 [Network Request] AudioPlayer - Precaching next track (1/2): ${nextUrl1}`);
+                console.log(
+                  `🎧 [Network Request] AudioPlayer - Precaching next track (1/2): ${nextUrl1}`,
+                );
                 cache.add(nextUrl1).catch(() => {});
               } catch {}
             }
-            
+
             const next2 = getNext(next1.hizb, next1.tomon);
             if (next2) {
               const nextUrl2 = getAudioUrl(next2.hizb, next2.tomon);
               const nextExisting2 = await cache.match(nextUrl2);
               if (!nextExisting2) {
                 try {
-                  console.log(`🎧 [Network Request] AudioPlayer - Precaching next track (2/2): ${nextUrl2}`);
+                  console.log(
+                    `🎧 [Network Request] AudioPlayer - Precaching next track (2/2): ${nextUrl2}`,
+                  );
                   cache.add(nextUrl2).catch(() => {});
                 } catch {}
               }
@@ -245,10 +251,14 @@ export default function AudioPlayer({
         <span className="player-separator">—</span>
         <span className="player-tomon">{TOMON_LABELS[tomon - 1]}</span>
         {isCached && (
-          <span 
-            className="player-cached-badge" 
+          <span
+            className="player-cached-badge"
             title="متوفر بدون إنترنت"
-            style={{ color: "#10b981", fontSize: "0.8rem", marginRight: "0.5rem" }}
+            style={{
+              color: "#10b981",
+              fontSize: "0.8rem",
+              marginRight: "0.5rem",
+            }}
           >
             ✓
           </span>
@@ -296,7 +306,9 @@ export default function AudioPlayer({
           aria-label="سرعة التشغيل"
           title="سرعة التشغيل"
         >
-          <span style={{ direction: "ltr", display: "inline-block" }}>{playbackRate}x</span>
+          <span style={{ direction: "ltr", display: "inline-block" }}>
+            {playbackRate}x
+          </span>
           ⚡
         </button>
       </div>
