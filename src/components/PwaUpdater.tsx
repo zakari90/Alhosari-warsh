@@ -93,7 +93,19 @@ export default function PwaUpdater() {
     });
 
     try {
-      // 1. Tell window.serwist to skip waiting if available
+      // 1. Clear old caches (except audio cache) before activating new SW
+      if ("caches" in window) {
+        console.log("🧹 [PWA Update] Clearing old caches...");
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          if (!cacheName.includes("quran-audio-cache")) {
+            console.log(`🗑️ [PWA Update] Deleting cache: ${cacheName}`);
+            await caches.delete(cacheName);
+          }
+        }
+      }
+
+      // 2. Tell window.serwist to skip waiting if available
       if (window.serwist && typeof window.serwist.messageSkipWaiting === "function") {
         console.log("📨 [PWA Update] Calling window.serwist.messageSkipWaiting()...");
         window.serwist.messageSkipWaiting();

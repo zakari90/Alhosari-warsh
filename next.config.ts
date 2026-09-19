@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
-  additionalPrecacheEntries: [{ url: "/", revision: "v0.1.9" }], // Use version from package.json
+  additionalPrecacheEntries: [{ url: "/", revision: "v0.1.10" }], // Use version from package.json
   reloadOnOnline: false,
 });
 

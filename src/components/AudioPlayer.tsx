@@ -112,17 +112,36 @@ export default function AudioPlayer({
         }
 
         // Precache next two tracks to ensure seamless autoplay
-        if (hizb !== null && tomon !== null) {
+        // (Moved to canplaythrough event to prevent bandwidth competition)
+      });
+    }
+  }, [audioUrl]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    let hasPrecached = false;
+
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onLoadedMetadata = () => setDuration(audio.duration);
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    
+    const onCanPlayThrough = () => {
+      // Precache next two tracks sequentially to avoid overwhelming the network
+      // Only do this once per track load
+      if (!hasPrecached && typeof caches !== "undefined" && hizb !== null && tomon !== null) {
+        hasPrecached = true;
+        caches.open("quran-audio-cache").then(async (cache) => {
           const next1 = getNext(hizb, tomon);
           if (next1) {
             const nextUrl1 = getAudioUrl(next1.hizb, next1.tomon);
             const nextExisting1 = await cache.match(nextUrl1);
             if (!nextExisting1) {
               try {
-                console.log(
-                  `🎧 [Network Request] AudioPlayer - Precaching next track (1/2): ${nextUrl1}`,
-                );
-                cache.add(nextUrl1).catch(() => {});
+                console.log(`🎧 [Network Request] AudioPlayer - Precaching next track (1/2): ${nextUrl1}`);
+                await cache.add(nextUrl1);
               } catch {}
             }
 
@@ -132,27 +151,16 @@ export default function AudioPlayer({
               const nextExisting2 = await cache.match(nextUrl2);
               if (!nextExisting2) {
                 try {
-                  console.log(
-                    `🎧 [Network Request] AudioPlayer - Precaching next track (2/2): ${nextUrl2}`,
-                  );
-                  cache.add(nextUrl2).catch(() => {});
+                  console.log(`🎧 [Network Request] AudioPlayer - Precaching next track (2/2): ${nextUrl2}`);
+                  await cache.add(nextUrl2);
                 } catch {}
               }
             }
           }
-        }
-      });
-    }
-  }, [audioUrl]);
+        });
+      }
+    };
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const onLoadedMetadata = () => setDuration(audio.duration);
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
     const onEnded = () => {
       if (hizb !== null && tomon !== null) {
         if (repeatTomon && repeatCountRef.current < REPEAT_MAX - 1) {
@@ -199,6 +207,7 @@ export default function AudioPlayer({
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
+    audio.addEventListener("canplaythrough", onCanPlayThrough);
     audio.addEventListener("ended", onEnded);
 
     return () => {
@@ -206,6 +215,7 @@ export default function AudioPlayer({
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
+      audio.removeEventListener("canplaythrough", onCanPlayThrough);
       audio.removeEventListener("ended", onEnded);
     };
   }, [hizb, tomon, onTrackChange, stopAtHizbEnd, repeatTomon]);
