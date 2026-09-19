@@ -43,8 +43,12 @@ export default function PwaUpdater() {
     }
 
     if (typeof window !== "undefined" && window.serwist) {
+      // Wait for the new service worker to take control before reloading
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        window.location.reload();
+      });
+      
       window.serwist.messageSkipWaiting();
-      window.location.reload();
     }
   };
 
