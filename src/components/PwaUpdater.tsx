@@ -10,14 +10,21 @@ export default function PwaUpdater() {
   const { verify } = useConnectivity();
 
   useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      "serviceWorker" in navigator &&
-      window.serwist
-    ) {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+
+    let cancelled = false;
+
+    const setup = () => {
+      if (cancelled || !window.serwist) return;
+
       const serwist = window.serwist;
 
-      // Listen for when a new service worker is waiting
+      // Check if a service worker is already waiting (e.g. page was refreshed)
+      if (serwist.getSW && serwist.getSW()?.state === "installed") {
+        setShowUpdate(true);
+      }
+
+      // Listen for when a new service worker enters the waiting state
       const onWaiting = () => {
         setShowUpdate(true);
       };
@@ -27,7 +34,30 @@ export default function PwaUpdater() {
       return () => {
         serwist.removeEventListener("waiting", onWaiting);
       };
+    };
+
+    // window.serwist is set asynchronously by SerwistInit, so retry if not ready
+    if (window.serwist) {
+      setup();
+    } else {
+      const interval = setInterval(() => {
+        if (window.serwist) {
+          clearInterval(interval);
+          setup();
+        }
+      }, 200);
+      // Stop trying after 10 seconds
+      const timeout = setTimeout(() => clearInterval(interval), 10000);
+      return () => {
+        cancelled = true;
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
     }
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleUpdate = async () => {

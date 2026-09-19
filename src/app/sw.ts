@@ -13,7 +13,7 @@ declare const self: ServiceWorkerGlobalScope & typeof globalThis;
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST || [],
-  skipWaiting: true,
+  skipWaiting: false,
   clientsClaim: true,
   // navigationPreload removed — it caused an extra network request on every
   // page navigation even when the shell is already precached.
