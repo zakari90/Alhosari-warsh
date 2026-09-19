@@ -1,84 +1,128 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useConnectivity } from "@/lib/useConnectivity";
+import { useEffect, useState, useRef } from "react";
 
 export default function PwaUpdater() {
   const [showUpdate, setShowUpdate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
-  const { verify } = useConnectivity();
+  const waitingWorkerRef = useRef<ServiceWorker | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+      console.log("ℹ️ [PWA Update] Service Worker not supported or running on server.");
+      return;
+    }
 
-    let cancelled = false;
+    console.log("🔍 [PWA Update] Initializing update listener...");
 
-    const setup = () => {
-      if (cancelled || !window.serwist) return;
-
-      const serwist = window.serwist;
-
-      // Check if a service worker is already waiting (e.g. page was refreshed)
-      if (serwist.getSW && serwist.getSW()?.state === "installed") {
+    const checkForWaiting = (registration: ServiceWorkerRegistration) => {
+      if (registration.waiting) {
+        console.log("✨ [PWA Update] Found waiting Service Worker!");
+        waitingWorkerRef.current = registration.waiting;
         setShowUpdate(true);
       }
-
-      // Listen for when a new service worker enters the waiting state
-      const onWaiting = () => {
-        setShowUpdate(true);
-      };
-
-      serwist.addEventListener("waiting", onWaiting);
-
-      return () => {
-        serwist.removeEventListener("waiting", onWaiting);
-      };
     };
 
-    // window.serwist is set asynchronously by SerwistInit, so retry if not ready
+    // Check existing registrations immediately
+    navigator.serviceWorker.getRegistration().then((reg) => {
+      if (reg) {
+        console.log("📋 [PWA Update] Current SW registration found:", reg);
+        checkForWaiting(reg);
+
+        // Listen for new service worker being installed
+        reg.addEventListener("updatefound", () => {
+          console.log("📥 [PWA Update] New Service Worker update found (installing)...");
+          const installing = reg.installing;
+          if (installing) {
+            installing.addEventListener("statechange", () => {
+              console.log(`🔄 [PWA Update] Installing SW state changed to: ${installing.state}`);
+              if (installing.state === "installed" && navigator.serviceWorker.controller) {
+                console.log("✨ [PWA Update] New Service Worker installed and waiting!");
+                waitingWorkerRef.current = installing;
+                setShowUpdate(true);
+              }
+            });
+          }
+        });
+      }
+    });
+
+    // Also attach to window.serwist if available
+    const checkSerwist = () => {
+      if (window.serwist) {
+        console.log("🔗 [PWA Update] Hooking into window.serwist instance");
+        window.serwist.addEventListener("waiting", () => {
+          console.log("✨ [PWA Update] Serwist fired 'waiting' event!");
+          setShowUpdate(true);
+        });
+      }
+    };
+
     if (window.serwist) {
-      setup();
+      checkSerwist();
     } else {
       const interval = setInterval(() => {
         if (window.serwist) {
           clearInterval(interval);
-          setup();
+          checkSerwist();
         }
-      }, 200);
-      // Stop trying after 10 seconds
-      const timeout = setTimeout(() => clearInterval(interval), 10000);
-      return () => {
-        cancelled = true;
-        clearInterval(interval);
-        clearTimeout(timeout);
-      };
+      }, 500);
+      return () => clearInterval(interval);
     }
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   const handleUpdate = async () => {
+    console.log("🔘 [PWA Update] 'Update Now' clicked");
     setError(null);
     setUpdating(true);
 
-    // Verify real connectivity before applying the update
-    const reachable = await verify();
-    if (!reachable) {
-      setError("لا يوجد اتصال بالإنترنت. جرب لاحقاً.");
-      setUpdating(false);
-      return;
-    }
-
-    if (typeof window !== "undefined" && window.serwist) {
-      // Wait for the new service worker to take control before reloading
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
+    let reloaded = false;
+    const triggerReload = () => {
+      if (!reloaded) {
+        reloaded = true;
+        console.log("🔄 [PWA Update] Reloading page to apply update...");
         window.location.reload();
-      });
-      
-      window.serwist.messageSkipWaiting();
+      }
+    };
+
+    // Listen for controllerchange
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      console.log("⚡ [PWA Update] controllerchange event detected! Applying new version.");
+      triggerReload();
+    });
+
+    try {
+      // 1. Tell window.serwist to skip waiting if available
+      if (window.serwist && typeof window.serwist.messageSkipWaiting === "function") {
+        console.log("📨 [PWA Update] Calling window.serwist.messageSkipWaiting()...");
+        window.serwist.messageSkipWaiting();
+      }
+
+      // 2. Also send SKIP_WAITING directly to registration.waiting
+      const reg = await navigator.serviceWorker.getRegistration();
+      const waitingWorker = reg?.waiting || waitingWorkerRef.current;
+
+      if (waitingWorker) {
+        console.log("📨 [PWA Update] Posting SKIP_WAITING directly to waiting worker:", waitingWorker);
+        waitingWorker.postMessage({ type: "SKIP_WAITING" });
+      } else {
+        console.warn("⚠️ [PWA Update] No waiting worker reference found in registration. Calling registration.update()...");
+        if (reg) {
+          await reg.update();
+        }
+      }
+
+      // Fallback reload timeout in case controllerchange doesn't fire
+      setTimeout(() => {
+        console.log("⏱️ [PWA Update] Fallback reload timer fired (1.5s). Forcing reload...");
+        triggerReload();
+      }, 1500);
+
+    } catch (err: any) {
+      console.error("❌ [PWA Update] Error during update:", err);
+      setError("حدث خطأ أثناء التحديث. سيتم إعادة التحميل...");
+      setTimeout(() => triggerReload(), 1500);
     }
   };
 
@@ -100,7 +144,7 @@ export default function PwaUpdater() {
           onClick={handleUpdate}
           disabled={updating}
         >
-          {updating ? "جارٍ التحقق..." : "تحديث الآن"}
+          {updating ? "جارٍ التحديث..." : "تحديث الآن"}
         </button>
       </div>
     </div>

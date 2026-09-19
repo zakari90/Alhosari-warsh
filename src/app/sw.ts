@@ -36,3 +36,10 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    console.log("⚙️ [SW] SKIP_WAITING message received in Service Worker, skipping waiting...");
+    self.skipWaiting();
+  }
+});
