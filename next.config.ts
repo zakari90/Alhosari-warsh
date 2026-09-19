@@ -1,4 +1,5 @@
 import withSerwistInit from "@serwist/next";
+import type { NextConfig } from "next";
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
@@ -7,4 +8,29 @@ const withSerwist = withSerwistInit({
   reloadOnOnline: false,
 });
 
-export default withSerwist({});
+const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/sw.js.map",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default withSerwist(nextConfig);
